@@ -1,3 +1,15 @@
+/**
+ * @file encoder.h
+ * @brief Encoder class for handling rotary encoders with button
+ * @details This class provides methods to initialize, update, and handle
+ * @anchor Andrey Unger unger1984@gmail.com
+ *
+ *  Это упрощенный класс для работы с энкодерами с кнопкой.
+ *  Он использует таймеры STM32 для отслеживания вращения и состояния кнопки.
+ *
+ * Не проверял портируемость и совместимость!
+ */
+
 #pragma once
 #include "tim.h"
 

@@ -1,3 +1,16 @@
+/**
+ * @file oled.h
+ * @brief OLED class for handling SSD1306 OLED displays
+ * @details This class provides methods to initialize, update, and draw on
+ *          an SSD1306 OLED display using I2C communication.
+ * @anchor Andrey Unger unger1984@gmail.com
+ *
+ * Это упрощенный класс для работы с OLED дисплеем SSD1306 через I2C.
+ * Он использует библиотеку u8g2 для управления дисплеем.
+ *
+ * Не проверял портируемость и совместимость!
+ */
+
 #pragma once
 
 #include "i2c.h"
