@@ -35,6 +35,10 @@ void OLED::box(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h) {
   u8g2_DrawBox(&u8g2, x, y, w, h);
 }
 
+void OLED::frame(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h) {
+  u8g2_DrawFrame(&u8g2, x, y, w, h);
+}
+
 void OLED::drowGraph(float temp) {
   addToBuffer(temp);
 

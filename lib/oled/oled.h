@@ -32,6 +32,7 @@ public:
   void clear();
   void clearAll();
   void setColor(uint8_t color);
+  void frame(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h);
   void box(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h);
 
   void drowGraph(float temp);

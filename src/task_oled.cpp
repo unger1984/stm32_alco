@@ -55,20 +55,27 @@ typedef struct {
 } MenuState_t;
 
 void showCalibration() {
+  printf("Mode: %d. MenuIndex: %d. Selected: %d\n", appState.mode,
+         appState.menuState.index, appState.menuState.selected);
+
+  oled.setFont(u8g2_font_unifont_t_cyrillic);
   for (int i = 0; i < 4; i++) {
-    int item = appState.menuState.top_index + i;
+    if (appState.menuState.top_index + i >= appState.menuState.size) {
+      break;
+    }
     int selected = appState.menuState.index - appState.menuState.top_index;
-    // if (index >= appState.menuState.size)
-    //   break;
 
-    // if (index == appState.menuState.index) {
-    // oled.setColor(1); // Выделяем активный элемент
-    // } else {
-    // oled.setColor(0); // Неактивный элемент
-    // }
+    oled.setColor(1);
+    if (selected == i) {
+      if (appState.menuState.selected) {
+        oled.box(0, (i * 16), 128, 15);
+        oled.setColor(0);
+      } else {
+        oled.frame(0, (i * 16), 128, 15);
+      }
+    }
 
-    snprintf(txt, sizeof(txt), "%s Пункт %d", selected == i ? ">>" : "  ",
-             item);
-    oled.print(0, 20 + (i * 12), txt);
+    oled.print(2, 12 + (i * 16),
+               menuCalibration[appState.menuState.top_index + i]);
   }
 }

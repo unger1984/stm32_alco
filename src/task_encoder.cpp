@@ -38,11 +38,20 @@ void taskEncoder_Run(void) {
              event.buttonPressedDuring);
 
       break;
+    case EncoderEventType::Press:
+      printf("Press\r\n");
+      break;
+    case EncoderEventType::Release:
+      printf("Push\r\n");
+      break;
+    case EncoderEventType::Hold:
+      printf("Hold, Duration: %lu ms\r\n", event.pressDurationMs);
+      break;
     case EncoderEventType::Click:
       printf("Click, Duration: %lu ms\r\n", event.pressDurationMs);
       break;
-    case EncoderEventType::Release:
-      printf("Release, Duration: %lu ms\r\n", event.pressDurationMs);
+    case EncoderEventType::LongClick:
+      printf("LongClick, Duration: %lu ms\r\n", event.pressDurationMs);
       break;
     default:
       break;
@@ -52,11 +61,12 @@ void taskEncoder_Run(void) {
 }
 
 void processModeMain(EncoderEvent event) {
-  if (event.type == EncoderEventType::Release && event.pressDurationMs > 500) {
+  if (event.type == EncoderEventType::LongClick) {
     appState.mode = MODE_CALIBRATION;
     appState.menuState.index = 0;
     appState.menuState.top_index = 0;
-    appState.menuState.size = 12;
+    appState.menuState.selected = 0;
+    appState.menuState.size = menuCalibrationSize;
     appState.oledUpdated = 0;
   }
 }
@@ -64,23 +74,33 @@ void processModeMain(EncoderEvent event) {
 void processModeCalibration(EncoderEvent event) {
   switch (event.type) {
   case EncoderEventType::Rotate:
-    appState.menuState.index += event.ticks;
+    if (!appState.menuState.selected) {
+      appState.menuState.index += event.ticks;
 
-    if (appState.menuState.index < 0) {
-      appState.menuState.index = 0;
-    }
-    if (appState.menuState.index >= appState.menuState.size) {
-      appState.menuState.index = appState.menuState.size - 1;
+      if (appState.menuState.index < 0) {
+        appState.menuState.index = 0;
+      }
+      if (appState.menuState.index >= appState.menuState.size) {
+        appState.menuState.index = appState.menuState.size - 1;
+      }
+
+      if (appState.menuState.top_index + MENU_VISIBLE_ITEMS - 1 <
+          appState.menuState.index) {
+        // если прокрутили ниже чем есть
+        appState.menuState.top_index += 1;
+      } else if (appState.menuState.index < appState.menuState.top_index) {
+        appState.menuState.top_index -= 1;
+      }
     }
 
-    if (appState.menuState.top_index + MENU_VISIBLE_ITEMS - 1 <
-        appState.menuState.index) {
-      // если прокрутили ниже чем есть
-      appState.menuState.top_index += 1;
-    } else if (appState.menuState.index < appState.menuState.top_index) {
-      appState.menuState.top_index -= 1;
-    }
-
+    appState.oledUpdated = 0;
+    break;
+  case EncoderEventType::LongClick:
+    appState.mode = MODE_MAIN;
+    appState.oledUpdated = 0;
+    break;
+  case EncoderEventType::Click:
+    appState.menuState.selected = appState.menuState.selected ? 0 : 1;
     appState.oledUpdated = 0;
     break;
   default:

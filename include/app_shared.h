@@ -14,6 +14,7 @@ typedef enum {
 typedef struct {
   int8_t index;      // Индекс текущего элемента
   uint8_t top_index; // Индекс верхнего элемента на экране
+  uint8_t selected;
   uint8_t size;
 } MenuState;
 
@@ -25,5 +26,8 @@ typedef struct {
 
 extern volatile AppState appState;
 extern osSemaphoreId_t appStateMutexHandle;
+
+extern const char *const menuCalibration[];
+extern const uint8_t menuCalibrationSize;
 
 #endif

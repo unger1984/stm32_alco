@@ -18,7 +18,15 @@
 
 #ifdef __cplusplus
 
-enum class EncoderEventType { None, Rotate, Click, Release };
+enum class EncoderEventType {
+  None,
+  Rotate,
+  Click,
+  LongClick,
+  Press,
+  Release,
+  Hold
+};
 
 struct EncoderEvent {
   EncoderEventType type = EncoderEventType::None;
@@ -50,6 +58,7 @@ private:
   uint16_t lastCounter_;
   GPIO_PinState lastButtonState_;
   uint32_t buttonPressTime_;
+  uint32_t lastDuration_;
   bool buttonWasPressedDuringRotate_;
 
   EncoderEvent currentEvent_;
