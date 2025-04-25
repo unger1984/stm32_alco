@@ -15,25 +15,25 @@ void taskServo_Init(void) {
 }
 
 void taskServo_Run(void) {
-  printf("Servo angle: 0\r\n");
-  servo.SetAngle(0);
-  osDelay(2000);
-  printf("Servo angle: 30\r\n");
-  servo.SetAngle(30);
-  osDelay(2000);
-  printf("Servo angle: 60\r\n");
-  servo.SetAngle(60);
-  osDelay(2000);
-  printf("Servo angle: 90\r\n");
-  servo.SetAngle(90);
-  osDelay(2000);
-  printf("Servo angle: 120\r\n");
-  servo.SetAngle(120);
-  osDelay(2000);
-  printf("Servo angle: 150\r\n");
-  servo.SetAngle(150);
-  osDelay(2000);
-  printf("Servo angle: 180\r\n");
-  servo.SetAngle(180);
-  osDelay(2000);
+  // printf("Servo angle: 0\r\n");
+  // servo.SetAngle(0);
+  // osDelay(2000);
+  // // printf("Servo angle: 30\r\n");
+  // servo.SetAngle(30);
+  // osDelay(2000);
+  // // printf("Servo angle: 60\r\n");
+  // servo.SetAngle(60);
+  // osDelay(2000);
+  // // printf("Servo angle: 90\r\n");
+  // servo.SetAngle(90);
+  // osDelay(2000);
+  // // printf("Servo angle: 120\r\n");
+  // servo.SetAngle(120);
+  // osDelay(2000);
+  // // printf("Servo angle: 150\r\n");
+  // servo.SetAngle(150);
+  // osDelay(2000);
+  // // printf("Servo angle: 180\r\n");
+  // servo.SetAngle(180);
+  // osDelay(2000);
 }

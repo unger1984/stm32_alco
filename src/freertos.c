@@ -25,19 +25,21 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_shared.h"
 #include "task_encoder.h"
 #include "task_oled.h"
 #include "task_servo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
+typedef StaticSemaphore_t osStaticSemaphoreDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+volatile AppState appState;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -76,6 +78,14 @@ const osThreadAttr_t taskOled_attributes = {
     .stack_size = 128 * 4,
     .priority = (osPriority_t)osPriorityLow,
 };
+/* Definitions for appStateMutex */
+osSemaphoreId_t appStateMutexHandle;
+osStaticSemaphoreDef_t menuStateMutexControlBlock;
+const osSemaphoreAttr_t appStateMutex_attributes = {
+    .name = "appStateMutex",
+    .cb_mem = &menuStateMutexControlBlock,
+    .cb_size = sizeof(menuStateMutexControlBlock),
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -101,6 +111,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
+
+  /* Create the semaphores(s) */
+  /* creation of appStateMutex */
+  appStateMutexHandle = osSemaphoreNew(1, 1, &appStateMutex_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
