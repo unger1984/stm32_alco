@@ -25,6 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_shared.h"
 #include "task_encoder.h"
 #include "task_oled.h"
 #include "task_servo.h"
@@ -38,7 +39,7 @@ typedef StaticSemaphore_t osStaticSemaphoreDef_t;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+volatile AppState appState;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/

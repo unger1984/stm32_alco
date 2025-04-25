@@ -30,15 +30,15 @@ EncoderEvent Encoder::GetEvent() {
 }
 
 void Encoder::HandleRotation() {
-  uint16_t current = __HAL_TIM_GET_COUNTER(timer_);
-  int16_t delta = static_cast<int16_t>(current - lastCounter_);
-  lastCounter_ = current;
+  uint16_t current = __HAL_TIM_GET_COUNTER(timer_) >> 1;
 
-  if (delta != 0) {
-    bool pressed = HAL_GPIO_ReadPin(buttonPort_, buttonPin_) == GPIO_PIN_RESET;
+  if (lastCounter_ != current) {
+    int8_t res = (current > lastCounter_) ? 1 : -1;
+    lastCounter_ = current;
     currentEvent_.type = EncoderEventType::Rotate;
-    currentEvent_.ticks = delta;
-    currentEvent_.buttonPressedDuring = pressed;
+    currentEvent_.ticks = res;
+    currentEvent_.buttonPressedDuring =
+        HAL_GPIO_ReadPin(buttonPort_, buttonPin_) == GPIO_PIN_RESET;
   }
 }
 
@@ -51,8 +51,9 @@ void Encoder::HandleButton() {
 
   if (lastButtonState_ == GPIO_PIN_RESET && state == GPIO_PIN_SET) {
     uint32_t duration = HAL_GetTick() - buttonPressTime_;
-    currentEvent_.type =
-        (duration < 500) ? EncoderEventType::Click : EncoderEventType::Release;
+    currentEvent_.type = (duration < SHORT_PRESS_THRESHOLD_MS)
+                             ? EncoderEventType::Click
+                             : EncoderEventType::Release;
     currentEvent_.pressDurationMs = duration;
   }
 

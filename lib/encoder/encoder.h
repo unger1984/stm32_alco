@@ -13,6 +13,9 @@
 #pragma once
 #include "tim.h"
 
+#define SHORT_PRESS_THRESHOLD_MS 500
+#define ROTATION_STOP_DELAY_MS 50
+
 #ifdef __cplusplus
 
 enum class EncoderEventType { None, Rotate, Click, Release };

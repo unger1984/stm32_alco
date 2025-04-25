@@ -64,7 +64,7 @@ void processModeMain(EncoderEvent event) {
 void processModeCalibration(EncoderEvent event) {
   switch (event.type) {
   case EncoderEventType::Rotate:
-    appState.menuState.index += event.ticks > 0 ? 1 : -1;
+    appState.menuState.index += event.ticks;
 
     if (appState.menuState.index < 0) {
       appState.menuState.index = 0;
@@ -74,22 +74,11 @@ void processModeCalibration(EncoderEvent event) {
     }
 
     if (appState.menuState.index >= MENU_VISIBLE_ITEMS) {
-      // если текущий индекс больше чем можем отобразить
       appState.menuState.top_index =
           appState.menuState.index - MENU_VISIBLE_ITEMS + 1;
     } else {
       appState.menuState.top_index = 0;
     }
-
-    // if (appState.menuState.index < appState.menuState.top_index) {
-    //   appState.menuState.top_index =
-    //       appState.menuState.index; // Прокрутка вверх
-    // } else if (appState.menuState.index >=
-    //            appState.menuState.top_index + MENU_VISIBLE_ITEMS) {
-    //   appState.menuState.top_index =
-    //       appState.menuState.index - MENU_VISIBLE_ITEMS + 1; // Прокрутка
-    //       вниз
-    // }
 
     appState.oledUpdated = 0;
     break;
