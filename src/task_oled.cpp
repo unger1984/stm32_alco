@@ -2,21 +2,37 @@
 #include "app_shared.h"
 #include <stdio.h>
 
+#define WIDTH 128
+#define HALF_SCREEN WIDTH / 2
+#define HALF_TEXT 5
+
 OLED oled;
 char txt[128];
 
-void showMain();
+void showAuto();
+void showManual();
+void showDrain();
 void showCalibration();
+
+size_t utf8_strlen(const char *str) {
+  size_t len = 0;
+  while (*str) {
+    if ((*str & 0xC0) != 0x80)
+      len++; // Считаем только стартовые байты символов
+    str++;
+  }
+  return len;
+}
 
 void taskOled_Init(void) {
   oled.init();
   oled.clearAll();
 
-  // oled.setFont(u8g2_font_cu12_t_cyrillic);
-  // snprintf(txt, sizeof(txt), "НАЛИВАТОР");
-
-  // oled.print(20, 40, txt);
-  // oled.update();
+  const char text[] = "НАЛИВАТОРv0.1";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 40, txt);
+  oled.update();
 }
 
 void taskOled_Run(void) {
@@ -25,8 +41,14 @@ void taskOled_Run(void) {
     if (appState.oledUpdated == 0) {
       oled.clear();
       switch (appState.mode) {
-      case MODE_MAIN:
-        showMain();
+      case MODE_AUTO:
+        showAuto();
+        break;
+      case MODE_MANUAL:
+        showManual();
+        break;
+      case MODE_DRAIN:
+        showDrain();
         break;
       case MODE_CALIBRATION:
         showCalibration();
@@ -42,40 +64,68 @@ void taskOled_Run(void) {
   // osDelay(100);
 }
 
-void showMain() {
-  oled.setFont(u8g2_font_cu12_t_cyrillic);
-  snprintf(txt, sizeof(txt), "НАЛИВАТОР");
-  oled.print(20, 40, txt);
+void showAuto() {
+  const char text[] = "АВТОМАТ";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 40, txt);
 }
 
-// Структура для хранения текущего состояния меню
-typedef struct {
-  int current_item; // Индекс текущего элемента
-  int top_item;     // Индекс верхнего элемента на экране
-} MenuState_t;
+void showManual() {
+  const char text[] = "РУЧНОЙ";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 40, txt);
+}
+
+void showDrain() {
+  const char text[] = "ДРЕНАЖ";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 40, txt);
+
+  if (appState.timer > 0) {
+    oled.setFont(u8g2_font_unifont_t_cyrillic);
+    float time = (float)appState.timer / 1000;
+    int t_int = (int)time;
+    int t_frac = (int)(time * 10) % 10;
+    snprintf(txt, sizeof(txt), "%d.%dс", t_int, t_frac);
+    oled.print(HALF_SCREEN - utf8_strlen(text) * 2, 60, txt);
+  }
+}
+
+void drowMenu(MenuState menu) {}
 
 void showCalibration() {
-  printf("Mode: %d. MenuIndex: %d. Selected: %d\n", appState.mode,
-         appState.menuState.index, appState.menuState.selected);
+  // TODO удалить отладку
+  printf("Mode: %d. Active: %s, MenuIndex: %d. Selected: %d\n", appState.mode,
+         appState.menuState.active->label, appState.menuState.index,
+         appState.menuState.selected);
 
   oled.setFont(u8g2_font_unifont_t_cyrillic);
   for (int i = 0; i < 4; i++) {
-    if (appState.menuState.top_index + i >= appState.menuState.size) {
+    if (appState.menuState.top_index + i >= appState.menuState.active->size) {
       break;
     }
     int selected = appState.menuState.index - appState.menuState.top_index;
+    const MenuItem *itemMenu =
+        &appState.menuState.active->subItems[appState.menuState.top_index + i];
 
     oled.setColor(1);
     if (selected == i) {
       if (appState.menuState.selected) {
-        oled.box(0, (i * 16), 128, 15);
+        oled.box(0, (i * 16), WIDTH, 15);
         oled.setColor(0);
       } else {
-        oled.frame(0, (i * 16), 128, 15);
+        oled.frame(0, (i * 16), WIDTH, 15);
       }
     }
 
-    oled.print(2, 12 + (i * 16),
-               menuCalibration[appState.menuState.top_index + i]);
+    oled.print(2, 12 + (i * 16), itemMenu->label);
+
+    if (itemMenu->type == MenuItemType::Settings) {
+      snprintf(txt, sizeof(txt), "%d", *(itemMenu->value));
+      oled.print(WIDTH - 2 - utf8_strlen(txt) * 7, 12 + (i * 16), txt);
+    }
   }
 }
