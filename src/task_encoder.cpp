@@ -73,11 +73,12 @@ void processModeCalibration(EncoderEvent event) {
       appState.menuState.index = appState.menuState.size - 1;
     }
 
-    if (appState.menuState.index >= MENU_VISIBLE_ITEMS) {
-      appState.menuState.top_index =
-          appState.menuState.index - MENU_VISIBLE_ITEMS + 1;
-    } else {
-      appState.menuState.top_index = 0;
+    if (appState.menuState.top_index + MENU_VISIBLE_ITEMS - 1 <
+        appState.menuState.index) {
+      // если прокрутили ниже чем есть
+      appState.menuState.top_index += 1;
+    } else if (appState.menuState.index < appState.menuState.top_index) {
+      appState.menuState.top_index -= 1;
     }
 
     appState.oledUpdated = 0;
