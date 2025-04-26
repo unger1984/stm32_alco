@@ -2,6 +2,7 @@
 #define APP_SHARED_H
 
 #include "cmsis_os.h"
+#include <event_groups.h>
 #include <semphr.h>
 
 /// Режимы приложения
@@ -60,8 +61,6 @@ typedef struct {
 // Состояние приложения
 typedef struct {
   AppMode mode;
-  uint8_t oledUpdated;
-  uint8_t servoUpdated;
   uint16_t servoAngle;
   uint32_t timer;
   MenuState menuState;
@@ -69,6 +68,7 @@ typedef struct {
 
 extern volatile AppState appState;
 extern osSemaphoreId_t appStateMutexHandle;
+extern osEventFlagsId_t updateEventHandle;
 
 extern const MenuItem menuCalibration[3];
 extern const MenuItem mainMenu;

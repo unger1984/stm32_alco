@@ -86,6 +86,9 @@ const osSemaphoreAttr_t appStateMutex_attributes = {
     .cb_mem = &menuStateMutexControlBlock,
     .cb_size = sizeof(menuStateMutexControlBlock),
 };
+/* Definitions for updateEvent */
+osEventFlagsId_t updateEventHandle;
+const osEventFlagsAttr_t updateEvent_attributes = {.name = "updateEvent"};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -146,6 +149,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
+  /* Create the event(s) */
+  /* creation of updateEvent */
+  updateEventHandle = osEventFlagsNew(&updateEvent_attributes);
 
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */

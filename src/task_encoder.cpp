@@ -85,14 +85,13 @@ void handleMenu(const MenuItem *menu) {
   appState.menuState.index = 0;
   appState.menuState.top_index = 0;
   appState.menuState.selected = 0;
-  appState.oledUpdated = 0;
-  appState.servoUpdated = 0;
   appState.servoAngle = 0;
   appState.timer = 0;
+  osEventFlagsSet(updateEventHandle, 0x01);
   if (compareStrings(menu->label, "Нaстройка серво") == 0) {
-    appState.servoUpdated = 0;
     const MenuItem *indexMenu1 = &menu->subItems[0];
     appState.servoAngle = (uint16_t)*(indexMenu1->value);
+    osEventFlagsSet(updateEventHandle, 0x02);
   }
 }
 
@@ -128,14 +127,13 @@ void handleRotateMain(int tick) {
     }
   }
   if (appState.mode == MODE_DRAIN) {
-    appState.servoUpdated = 0;
-    appState.servoAngle = 90;
+    osEventFlagsSet(updateEventHandle, 0x02);
   } else {
-    appState.servoUpdated = 0;
-    appState.servoAngle = 0;
+    osEventFlagsSet(updateEventHandle, 0x02);
   }
   appState.timer = 0;
-  appState.oledUpdated = 0;
+  osEventFlagsSet(updateEventHandle, 0x02);
+  osEventFlagsSet(updateEventHandle, 0x01);
 }
 
 /// Режим АВТО
@@ -172,13 +170,13 @@ void processModeDrain(EncoderEvent event) {
   case EncoderEventType::Hold:
     if (event.pressDurationMs > 500) {
       appState.timer = event.pressDurationMs;
-      appState.oledUpdated = 0;
+      osEventFlagsSet(updateEventHandle, 0x01);
       // TODO включить помпу
     }
     break;
   case EncoderEventType::LongClick:
     appState.timer = 0;
-    appState.oledUpdated = 0;
+    osEventFlagsSet(updateEventHandle, 0x01);
     // TODO выключить помпу
     break;
   case EncoderEventType::Rotate:
@@ -206,7 +204,7 @@ void handleRotateMenu(int16_t ticks) {
   } else if (appState.menuState.index < appState.menuState.top_index) {
     appState.menuState.top_index -= 1;
   }
-  appState.oledUpdated = 0;
+  osEventFlagsSet(updateEventHandle, 0x01);
 }
 
 /// Режим Калибровка
@@ -227,7 +225,7 @@ void processModeCalibration(EncoderEvent event) {
     case EncoderEventType::LongClick:
       if (appState.menuState.active->parent == nullptr) {
         appState.mode = MODE_AUTO;
-        appState.oledUpdated = 0;
+        osEventFlagsSet(updateEventHandle, 0x01);
       } else {
         handleMenu(appState.menuState.active->parent);
       }
@@ -248,16 +246,16 @@ void processModeCalibration(EncoderEvent event) {
         if (*(indexMenu->value) < indexMenu->min) {
           *(indexMenu->value) = indexMenu->min;
         }
-        appState.oledUpdated = 0;
+        osEventFlagsSet(updateEventHandle, 0x01);
         if (compareStrings(appState.menuState.active->label,
                            "Нaстройка серво") == 0) {
-          appState.servoUpdated = 0;
+          osEventFlagsSet(updateEventHandle, 0x02);
           appState.servoAngle = (uint16_t)*(indexMenu->value);
         }
         break;
       case EncoderEventType::Click:
         appState.menuState.selected = !appState.menuState.selected;
-        appState.oledUpdated = 0;
+        osEventFlagsSet(updateEventHandle, 0x01);
         break;
       default:
         break;
@@ -269,7 +267,7 @@ void processModeCalibration(EncoderEvent event) {
         handleRotateMenu(event.ticks);
         if (compareStrings(appState.menuState.active->label,
                            "Нaстройка серво") == 0) {
-          appState.servoUpdated = 0;
+          osEventFlagsSet(updateEventHandle, 0x02);
           const MenuItem *indexMenu1 =
               &appState.menuState.active->subItems[appState.menuState.index];
           appState.servoAngle = (uint16_t)*(indexMenu1->value);
@@ -277,7 +275,7 @@ void processModeCalibration(EncoderEvent event) {
         break;
       case EncoderEventType::Click:
         appState.menuState.selected = !appState.menuState.selected;
-        appState.oledUpdated = 0;
+        osEventFlagsSet(updateEventHandle, 0x01);
         break;
       case EncoderEventType::LongClick:
         handleMenu(appState.menuState.active->parent);

@@ -36,29 +36,30 @@ void taskOled_Init(void) {
 }
 
 void taskOled_Run(void) {
+  osEventFlagsWait(updateEventHandle, 0x01, 0x01, portMAX_DELAY);
   osStatus_t status = osSemaphoreAcquire(appStateMutexHandle, osWaitForever);
   if (status == osOK) {
-    if (appState.oledUpdated == 0) {
-      oled.clear();
-      switch (appState.mode) {
-      case MODE_AUTO:
-        showAuto();
-        break;
-      case MODE_MANUAL:
-        showManual();
-        break;
-      case MODE_DRAIN:
-        showDrain();
-        break;
-      case MODE_CALIBRATION:
-        showCalibration();
-        break;
-      default:
-        break;
-      }
-      oled.update();
-      appState.oledUpdated = 1;
+    // if (appState.oledUpdated == 0) {
+    oled.clear();
+    switch (appState.mode) {
+    case MODE_AUTO:
+      showAuto();
+      break;
+    case MODE_MANUAL:
+      showManual();
+      break;
+    case MODE_DRAIN:
+      showDrain();
+      break;
+    case MODE_CALIBRATION:
+      showCalibration();
+      break;
+    default:
+      break;
     }
+    oled.update();
+    // appState.oledUpdated = 1;
+    // }
     osSemaphoreRelease(appStateMutexHandle);
     // portYIELD();
   }
