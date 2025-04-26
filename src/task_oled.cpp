@@ -60,6 +60,7 @@ void taskOled_Run(void) {
       appState.oledUpdated = 1;
     }
     osSemaphoreRelease(appStateMutexHandle);
+    // portYIELD();
   }
   // osDelay(100);
 }

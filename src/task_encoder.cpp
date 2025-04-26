@@ -48,31 +48,32 @@ void taskEncoder_Run(void) {
       }
       osSemaphoreRelease(appStateMutexHandle);
     }
+    // portYIELD();
 
-    switch (event.type) {
-    case EncoderEventType::Rotate:
-      printf("Rotate: %d, Button pressed: %d\r\n", event.ticks,
-             event.buttonPressedDuring);
+    // switch (event.type) {
+    // case EncoderEventType::Rotate:
+    //   printf("Rotate: %d, Button pressed: %d\r\n", event.ticks,
+    //          event.buttonPressedDuring);
 
-      break;
-    case EncoderEventType::Press:
-      printf("Press\r\n");
-      break;
-    case EncoderEventType::Release:
-      printf("Push\r\n");
-      break;
-    case EncoderEventType::Hold:
-      printf("Hold, Duration: %lu ms\r\n", event.pressDurationMs);
-      break;
-    case EncoderEventType::Click:
-      printf("Click, Duration: %lu ms\r\n", event.pressDurationMs);
-      break;
-    case EncoderEventType::LongClick:
-      printf("LongClick, Duration: %lu ms\r\n", event.pressDurationMs);
-      break;
-    default:
-      break;
-    }
+    //   break;
+    // case EncoderEventType::Press:
+    //   printf("Press\r\n");
+    //   break;
+    // case EncoderEventType::Release:
+    //   printf("Push\r\n");
+    //   break;
+    // case EncoderEventType::Hold:
+    //   printf("Hold, Duration: %lu ms\r\n", event.pressDurationMs);
+    //   break;
+    // case EncoderEventType::Click:
+    //   printf("Click, Duration: %lu ms\r\n", event.pressDurationMs);
+    //   break;
+    // case EncoderEventType::LongClick:
+    //   printf("LongClick, Duration: %lu ms\r\n", event.pressDurationMs);
+    //   break;
+    // default:
+    //   break;
+    // }
   }
   // osDelay(10);
 }
@@ -88,6 +89,11 @@ void handleMenu(const MenuItem *menu) {
   appState.servoUpdated = 0;
   appState.servoAngle = 0;
   appState.timer = 0;
+  if (compareStrings(menu->label, "Нaстройка серво") == 0) {
+    appState.servoUpdated = 0;
+    const MenuItem *indexMenu1 = &menu->subItems[0];
+    appState.servoAngle = (uint16_t)*(indexMenu1->value);
+  }
 }
 
 /// Переключение режимов главного экрана
@@ -261,6 +267,13 @@ void processModeCalibration(EncoderEvent event) {
       switch (event.type) {
       case EncoderEventType::Rotate:
         handleRotateMenu(event.ticks);
+        if (compareStrings(appState.menuState.active->label,
+                           "Нaстройка серво") == 0) {
+          appState.servoUpdated = 0;
+          const MenuItem *indexMenu1 =
+              &appState.menuState.active->subItems[appState.menuState.index];
+          appState.servoAngle = (uint16_t)*(indexMenu1->value);
+        }
         break;
       case EncoderEventType::Click:
         appState.menuState.selected = !appState.menuState.selected;

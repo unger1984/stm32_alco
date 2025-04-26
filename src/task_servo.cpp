@@ -23,6 +23,7 @@ void taskServo_Run(void) {
       appState.servoUpdated = 1;
     }
     osSemaphoreRelease(appStateMutexHandle);
+    // portYIELD();
   }
   // osDelay(20);
 }

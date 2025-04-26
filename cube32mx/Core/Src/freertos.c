@@ -19,9 +19,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "FreeRTOS.h"
-#include "task.h"
-#include "main.h"
 #include "cmsis_os.h"
+#include "main.h"
+#include "task.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -53,38 +53,38 @@ volatile AppState appState;
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "defaultTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for taskEncoder */
 osThreadId_t taskEncoderHandle;
 const osThreadAttr_t taskEncoder_attributes = {
-  .name = "taskEncoder",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "taskEncoder",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for taskServo */
 osThreadId_t taskServoHandle;
 const osThreadAttr_t taskServo_attributes = {
-  .name = "taskServo",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "taskServo",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for taskOled */
 osThreadId_t taskOledHandle;
 const osThreadAttr_t taskOled_attributes = {
-  .name = "taskOled",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+    .name = "taskOled",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityLow,
 };
 /* Definitions for appStateMutex */
 osSemaphoreId_t appStateMutexHandle;
 osStaticSemaphoreDef_t menuStateMutexControlBlock;
 const osSemaphoreAttr_t appStateMutex_attributes = {
-  .name = "appStateMutex",
-  .cb_mem = &menuStateMutexControlBlock,
-  .cb_size = sizeof(menuStateMutexControlBlock),
+    .name = "appStateMutex",
+    .cb_mem = &menuStateMutexControlBlock,
+    .cb_size = sizeof(menuStateMutexControlBlock),
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,10 +100,10 @@ void StartTaskOled(void *argument);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   /* USER CODE END Init */
@@ -130,10 +130,12 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+  defaultTaskHandle =
+      osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of taskEncoder */
-  taskEncoderHandle = osThreadNew(StartTaskEncoder, NULL, &taskEncoder_attributes);
+  taskEncoderHandle =
+      osThreadNew(StartTaskEncoder, NULL, &taskEncoder_attributes);
 
   /* creation of taskServo */
   taskServoHandle = osThreadNew(StartTaskServo, NULL, &taskServo_attributes);
@@ -148,7 +150,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
-
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -158,8 +159,7 @@ void MX_FREERTOS_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
+void StartDefaultTask(void *argument) {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for (;;) {
@@ -175,8 +175,7 @@ void StartDefaultTask(void *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskEncoder */
-void StartTaskEncoder(void *argument)
-{
+void StartTaskEncoder(void *argument) {
   /* USER CODE BEGIN StartTaskEncoder */
   taskEncoder_Init();
   /* Infinite loop */
@@ -194,8 +193,7 @@ void StartTaskEncoder(void *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskServo */
-void StartTaskServo(void *argument)
-{
+void StartTaskServo(void *argument) {
   /* USER CODE BEGIN StartTaskServo */
   taskServo_Init();
   /* Infinite loop */
@@ -213,8 +211,7 @@ void StartTaskServo(void *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskOled */
-void StartTaskOled(void *argument)
-{
+void StartTaskOled(void *argument) {
   /* USER CODE BEGIN StartTaskOled */
   taskOled_Init();
   /* Infinite loop */
@@ -229,4 +226,3 @@ void StartTaskOled(void *argument)
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-

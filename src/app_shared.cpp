@@ -1,6 +1,6 @@
 #include "app_shared.h"
 
-AppSettingsServo appSettingsServo = {0, 0, 0, 0, 0, 0};
+AppSettingsServo appSettingsServo = {15, 45, 75, 105, 135, 165};
 AppSettingsDosage appSettingsDodage = {100, 100, 100, 100, 100, 100};
 AppSettings appSettings = {appSettingsServo, 5000, appSettingsDodage};
 
