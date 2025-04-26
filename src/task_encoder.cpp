@@ -127,13 +127,12 @@ void handleRotateMain(int tick) {
     }
   }
   if (appState.mode == MODE_DRAIN) {
-    osEventFlagsSet(updateEventHandle, 0x02);
+    appState.servoAngle = 90;
   } else {
-    osEventFlagsSet(updateEventHandle, 0x02);
+    appState.servoAngle = 0;
   }
   appState.timer = 0;
-  osEventFlagsSet(updateEventHandle, 0x02);
-  osEventFlagsSet(updateEventHandle, 0x01);
+  osEventFlagsSet(updateEventHandle, 0x03);
 }
 
 /// Режим АВТО

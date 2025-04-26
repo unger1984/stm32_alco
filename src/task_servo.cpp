@@ -16,15 +16,11 @@ void taskServo_Init(void) {
 }
 
 void taskServo_Run(void) {
-  osEventFlagsWait(updateEventHandle, 0x02, 0x02, portMAX_DELAY);
+  osEventFlagsWait(updateEventHandle, 0x02, osFlagsWaitAll, portMAX_DELAY);
   osStatus_t status = osSemaphoreAcquire(appStateMutexHandle, osWaitForever);
   if (status == osOK) {
-    // if (appState.servoUpdated == 0) {
     servo.SetAngle(appState.servoAngle);
-    // appState.servoUpdated = 1;
-    // }
     osSemaphoreRelease(appStateMutexHandle);
-    // portYIELD();
   }
   // osDelay(20);
 }

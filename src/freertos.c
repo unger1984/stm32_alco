@@ -206,7 +206,7 @@ void StartTaskServo(void *argument) {
   /* Infinite loop */
   for (;;) {
     taskServo_Run();
-    osDelay(1);
+    // osDelay(1);
   }
   /* USER CODE END StartTaskServo */
 }
@@ -224,7 +224,7 @@ void StartTaskOled(void *argument) {
   /* Infinite loop */
   for (;;) {
     taskOled_Run();
-    osDelay(1);
+    // osDelay(1);
   }
   /* USER CODE END StartTaskOled */
 }

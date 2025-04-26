@@ -36,7 +36,7 @@ void taskOled_Init(void) {
 }
 
 void taskOled_Run(void) {
-  osEventFlagsWait(updateEventHandle, 0x01, 0x01, portMAX_DELAY);
+  osEventFlagsWait(updateEventHandle, 0x01, osFlagsWaitAll, portMAX_DELAY);
   osStatus_t status = osSemaphoreAcquire(appStateMutexHandle, osWaitForever);
   if (status == osOK) {
     // if (appState.oledUpdated == 0) {
