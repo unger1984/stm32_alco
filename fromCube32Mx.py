@@ -14,9 +14,13 @@ pio_lib = "lib"
 pio_src = "src"
 pio_inc = "include"
 
-def ensure_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+free_heap = [];
+for file in os.listdir(os.path.join(cube_freertos,  "portable", "MemMang")):
+    free_heap.append(file);
+
+free_port = [];
+for file in os.listdir(os.path.join(cube_freertos, "portable", "GCC","ARM_CM4F")):
+    free_port.append(file);
 
 # CMSIS_V2
 if os.path.exists(os.path.join(pio_lib, "CMSIS_RTOS_V2")):
@@ -30,25 +34,40 @@ os.makedirs(os.path.join(pio_lib, "FreeRTOS", "src"));
 os.makedirs(os.path.join(pio_lib, "FreeRTOS", "include"));
 
 for file in os.listdir(os.path.join(cube_freertos, "include")):
-     shutil.copy(os.path.join(cube_freertos, "include", file), os.path.join(pio_lib, "FreeRTOS", "include"))
+     print(os.path.join(cube_freertos, "include", file)+ " -> "+os.path.join(pio_lib, "FreeRTOS", "include", file));
+     shutil.copy(os.path.join(cube_freertos, "include", file), os.path.join(pio_lib, "FreeRTOS", "include", file))
 
 for file in os.listdir(os.path.join(cube_freertos)):
      if file.endswith(".c") or file == "LICENSE":
-        shutil.copy(os.path.join(cube_freertos, file), os.path.join(pio_lib, "FreeRTOS", "src"))
+        print(os.path.join(cube_freertos, file)+ " -> "+os.path.join(pio_lib, "FreeRTOS", "src", file));
+        shutil.copy(os.path.join(cube_freertos, file), os.path.join(pio_lib, "FreeRTOS", "src", file))
 
-shutil.copy(os.path.join(cube_freertos, "portable", "GCC","ARM_CM4F", "port.c"), os.path.join(pio_lib, "FreeRTOS", "src", "port.c"))
-shutil.copy(os.path.join(cube_freertos, "portable", "GCC","ARM_CM4F", "portmacro.h"), os.path.join(pio_lib, "FreeRTOS", "include", "portmacro.h"))
-shutil.copy(os.path.join(cube_freertos, "portable", "MemMang", "heap_4.c"), os.path.join(pio_lib, "FreeRTOS", "src", "heap_4.c"))
+for file in free_heap:
+     if file.endswith(".c"):
+          print(os.path.join(cube_freertos, "portable", "MemMang", file)+ " -> "+os.path.join(pio_lib, "FreeRTOS", "src", file));
+          shutil.copy(os.path.join(cube_freertos, "portable", "MemMang", file),os.path.join(pio_lib, "FreeRTOS", "src", file))
+     elif file.endswith(".h"):
+          print(os.path.join(cube_freertos, "portable", "MemMang", file)+ " -> "+os.path.join(pio_lib, "FreeRTOS", "include", file));
+          shutil.copy(os.path.join(cube_freertos, "portable", "MemMang", file),os.path.join(pio_lib, "FreeRTOS", "include", file))
+
+for file in free_port:
+     print(os.path.join(cube_freertos, "portable", "GCC","ARM_CM4F", file)+ " -> "+os.path.join(pio_lib, "FreeRTOS", "include", file));
+     if file.endswith(".c"):
+          shutil.copy(os.path.join(cube_freertos, "portable", "GCC","ARM_CM4F", file),os.path.join(pio_lib, "FreeRTOS", "src", file))
+     elif file.endswith(".h"):
+          shutil.copy(os.path.join(cube_freertos, "portable", "GCC","ARM_CM4F", file),os.path.join(pio_lib, "FreeRTOS", "include", file))
 
 
 # Копирование .c файлов
 for file in os.listdir(cube_src):
     if file.endswith(".c"):
+            print(os.path.join(cube_src, file)+ " -> "+os.path.join(pio_src, file));
             shutil.copy(os.path.join(cube_src, file), pio_src)
 
 # Копирование .h файлов
 for file in os.listdir(cube_inc):
     if file.endswith(".h"):
+        print(os.path.join(cube_src, file)+ " -> "+os.path.join(pio_inc, file));
         shutil.copy(os.path.join(cube_inc, file), pio_inc)
 
 print("✅ CubeMX → PlatformIO синхронизировано.")
