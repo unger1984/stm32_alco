@@ -1,321 +1,57 @@
-#include "task_encoder.h"
-#include "app_shared.h"
+#include "app.h"
+#include "tim.h"
+#include <cmsis_os2.h>
 #include <stdio.h>
-#include <string.h>
 
-#define MENU_VISIBLE_ITEMS 4
+void TaskEncoder(void *argument) {
+  uint16_t lastCounter_;
+  GPIO_PinState lastButtonState_;
 
-extern TIM_HandleTypeDef htim4;
-static Encoder _encoder(&htim4, ENC_BTN_GPIO_Port, ENC_BTN_Pin);
+  HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 
-void processModeAuto(EncoderEvent event);
-void processModeManual(EncoderEvent event);
-void processModeDrain(EncoderEvent event);
-void processModeCalibration(EncoderEvent event);
+  lastCounter_ = __HAL_TIM_GET_COUNTER(&htim4);
+  lastButtonState_ = HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin);
+  uint32_t buttonPressTime_;
 
-int compareStrings(const char *a, const char *b) {
-  while (*a && *b && *a == *b) {
-    a++;
-    b++;
-  }
-  return *a - *b;
-}
+  for (;;) {
+    EncoderState_t state = EncoderState_t{};
+    state.type = EncoderEvent_t::None;
 
-void taskEncoder_Init(void) { _encoder.Init(); }
-
-void taskEncoder_Run(void) {
-  _encoder.Update();
-  if (_encoder.HasEvent()) {
-    EncoderEvent event = _encoder.GetEvent();
-
-    osStatus_t status = osSemaphoreAcquire(appStateMutexHandle, osWaitForever);
-    if (status == osOK) {
-      switch (appState.mode) {
-      case MODE_AUTO:
-        processModeAuto(event);
-        break;
-      case MODE_MANUAL:
-        processModeManual(event);
-        break;
-      case MODE_DRAIN:
-        processModeDrain(event);
-        break;
-      case MODE_CALIBRATION:
-        processModeCalibration(event);
-        break;
-      default:
-        break;
-      }
-      osSemaphoreRelease(appStateMutexHandle);
+    GPIO_PinState btn = HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin);
+    if (lastButtonState_ == GPIO_PIN_SET && btn == GPIO_PIN_RESET) {
+      // Начало нажатия
+      buttonPressTime_ = millis();
+      state.type = EncoderEvent_t::Press;
+      state.pressDurationMs = 0;
+      state.press = 1;
+    } else if (lastButtonState_ == GPIO_PIN_RESET && btn == GPIO_PIN_SET) {
+      // Отпустили кнопку
+      state.pressDurationMs = millis() - buttonPressTime_;
+      state.type = EncoderEvent_t::Release;
+      state.press = 0;
     }
-    // portYIELD();
+    lastButtonState_ = btn;
 
-    // switch (event.type) {
-    // case EncoderEventType::Rotate:
-    //   printf("Rotate: %d, Button pressed: %d\r\n", event.ticks,
-    //          event.buttonPressedDuring);
-
-    //   break;
-    // case EncoderEventType::Press:
-    //   printf("Press\r\n");
-    //   break;
-    // case EncoderEventType::Release:
-    //   printf("Push\r\n");
-    //   break;
-    // case EncoderEventType::Hold:
-    //   printf("Hold, Duration: %lu ms\r\n", event.pressDurationMs);
-    //   break;
-    // case EncoderEventType::Click:
-    //   printf("Click, Duration: %lu ms\r\n", event.pressDurationMs);
-    //   break;
-    // case EncoderEventType::LongClick:
-    //   printf("LongClick, Duration: %lu ms\r\n", event.pressDurationMs);
-    //   break;
-    // default:
-    //   break;
-    // }
-  }
-  // osDelay(10);
-}
-
-/// Вход в меню
-void handleMenu(const MenuItem *menu) {
-  appState.mode = MODE_CALIBRATION;
-  appState.menuState.active = menu;
-  appState.menuState.index = 0;
-  appState.menuState.top_index = 0;
-  appState.menuState.selected = 0;
-  appState.servoAngle = 0;
-  appState.timer = 0;
-  osEventFlagsSet(updateEventHandle, 0x01);
-  if (compareStrings(menu->label, "Нaстройка серво") == 0) {
-    const MenuItem *indexMenu1 = &menu->subItems[0];
-    appState.servoAngle = (uint16_t)*(indexMenu1->value);
-    osEventFlagsSet(updateEventHandle, 0x02);
-  }
-}
-
-/// Переключение режимов главного экрана
-void handleRotateMain(int tick) {
-  if (tick > 0) {
-    switch (appState.mode) {
-    case MODE_AUTO:
-      appState.mode = MODE_MANUAL;
-      break;
-    case MODE_MANUAL:
-      appState.mode = MODE_DRAIN;
-      break;
-    case MODE_DRAIN:
-      appState.mode = MODE_AUTO;
-      break;
-    default:
-      break;
+    // Проверим было ли вращение
+    uint16_t current = __HAL_TIM_GET_COUNTER(&htim4) >> 1;
+    if (lastCounter_ != current) {
+      state.type = EncoderEvent_t::Rotate;
+      state.steps = (current < lastCounter_) ? 1 : -1;
+      lastCounter_ = current;
+      state.press = lastButtonState_ == GPIO_PIN_RESET ? 1 : 0;
     }
-  } else {
-    switch (appState.mode) {
-    case MODE_AUTO:
-      appState.mode = MODE_DRAIN;
-      break;
-    case MODE_MANUAL:
-      appState.mode = MODE_AUTO;
-      break;
-    case MODE_DRAIN:
-      appState.mode = MODE_MANUAL;
-      break;
-    default:
-      break;
+
+    if (state.type != EncoderEvent_t::None) {
+      //   printf("Event: %d Steps: %d Pressed %d Durations: %ul\r\n",
+      //   state.type,
+      //          state.steps, state.press, state.pressDurationMs);
+
+      ManagerEvent_t event;
+      event.source = ManagerEventSource_t::ENCODER;
+      event.data.encoder = state;
+      osMessageQueuePut(queueManagerHandle, &event, 0, osWaitForever);
     }
+
+    osDelay(10);
   }
-  if (appState.mode == MODE_DRAIN) {
-    appState.servoAngle = 90;
-  } else {
-    appState.servoAngle = 0;
-  }
-  appState.timer = 0;
-  osEventFlagsSet(updateEventHandle, 0x03);
-}
-
-/// Режим АВТО
-void processModeAuto(EncoderEvent event) {
-  switch (event.type) {
-  case EncoderEventType::LongClick:
-    handleMenu(&mainMenu);
-    break;
-  case EncoderEventType::Rotate:
-    handleRotateMain(event.ticks);
-    break;
-  default:
-    break;
-  }
-}
-
-/// Режим РУЧНОЙ
-void processModeManual(EncoderEvent event) {
-  switch (event.type) {
-  case EncoderEventType::LongClick:
-    handleMenu(&mainMenu);
-    break;
-  case EncoderEventType::Rotate:
-    handleRotateMain(event.ticks);
-    break;
-  default:
-    break;
-  }
-}
-
-/// Режим ДРЕНАЖ
-void processModeDrain(EncoderEvent event) {
-  switch (event.type) {
-  case EncoderEventType::Hold:
-    if (event.pressDurationMs > 500) {
-      appState.timer = event.pressDurationMs;
-      osEventFlagsSet(updateEventHandle, 0x01);
-      // TODO включить помпу
-    }
-    break;
-  case EncoderEventType::LongClick:
-    appState.timer = 0;
-    osEventFlagsSet(updateEventHandle, 0x01);
-    // TODO выключить помпу
-    break;
-  case EncoderEventType::Rotate:
-    handleRotateMain(event.ticks);
-    break;
-  default:
-    break;
-  }
-}
-
-/// Обработка переключение на следующее/предыдущее меню
-void handleRotateMenu(int16_t ticks) {
-  appState.menuState.index += ticks;
-  if (appState.menuState.index < 0) {
-    appState.menuState.index = 0;
-  }
-  if (appState.menuState.index >= appState.menuState.active->size) {
-    appState.menuState.index = appState.menuState.active->size - 1;
-  }
-
-  if (appState.menuState.top_index + MENU_VISIBLE_ITEMS - 1 <
-      appState.menuState.index) {
-    // если прокрутили ниже чем есть
-    appState.menuState.top_index += 1;
-  } else if (appState.menuState.index < appState.menuState.top_index) {
-    appState.menuState.top_index -= 1;
-  }
-  osEventFlagsSet(updateEventHandle, 0x01);
-}
-
-/// Режим Калибровка
-void processModeCalibration(EncoderEvent event) {
-  // пункт над которым находимся
-  const MenuItem *indexMenu =
-      &appState.menuState.active->subItems[appState.menuState.index];
-  switch (indexMenu->type) {
-  case MenuItemType::Menu:
-    // В это сабменю можно провалиться
-    switch (event.type) {
-    case EncoderEventType::Rotate:
-      handleRotateMenu(event.ticks);
-      break;
-    case EncoderEventType::Click:
-      handleMenu(indexMenu);
-      break;
-    case EncoderEventType::LongClick:
-      if (appState.menuState.active->parent == nullptr) {
-        appState.mode = MODE_AUTO;
-        osEventFlagsSet(updateEventHandle, 0x01);
-      } else {
-        handleMenu(appState.menuState.active->parent);
-      }
-      break;
-    default:
-      break;
-    }
-    break;
-  case MenuItemType::Settings:
-    // В этом меню изменяются настроки
-    if (appState.menuState.selected) {
-      switch (event.type) {
-      case EncoderEventType::Rotate:
-        *(indexMenu->value) += event.ticks;
-        if (*(indexMenu->value) > indexMenu->max) {
-          *(indexMenu->value) = indexMenu->max;
-        }
-        if (*(indexMenu->value) < indexMenu->min) {
-          *(indexMenu->value) = indexMenu->min;
-        }
-        osEventFlagsSet(updateEventHandle, 0x01);
-        if (compareStrings(appState.menuState.active->label,
-                           "Нaстройка серво") == 0) {
-          osEventFlagsSet(updateEventHandle, 0x02);
-          appState.servoAngle = (uint16_t)*(indexMenu->value);
-        }
-        break;
-      case EncoderEventType::Click:
-        appState.menuState.selected = !appState.menuState.selected;
-        osEventFlagsSet(updateEventHandle, 0x01);
-        break;
-      default:
-        break;
-      }
-
-    } else {
-      switch (event.type) {
-      case EncoderEventType::Rotate:
-        handleRotateMenu(event.ticks);
-        if (compareStrings(appState.menuState.active->label,
-                           "Нaстройка серво") == 0) {
-          osEventFlagsSet(updateEventHandle, 0x02);
-          const MenuItem *indexMenu1 =
-              &appState.menuState.active->subItems[appState.menuState.index];
-          appState.servoAngle = (uint16_t)*(indexMenu1->value);
-        }
-        break;
-      case EncoderEventType::Click:
-        appState.menuState.selected = !appState.menuState.selected;
-        osEventFlagsSet(updateEventHandle, 0x01);
-        break;
-      case EncoderEventType::LongClick:
-        handleMenu(appState.menuState.active->parent);
-        break;
-      default:
-        break;
-      }
-    }
-    break;
-  case MenuItemType::Action:
-    // Специальное действие
-    switch (event.type) {
-    case EncoderEventType::Rotate:
-      handleRotateMenu(event.ticks);
-      break;
-    case EncoderEventType::LongClick:
-      handleMenu(appState.menuState.active);
-      break;
-    default:
-      break;
-    }
-    break;
-  }
-
-  // if (appState.menuState.selected) {
-
-  // } else {
-  //   switch (event.type) {
-  //   case EncoderEventType::Rotate:
-
-  //     break;
-  //   // case EncoderEventType::LongClick:
-  //   //   appState.mode = MODE_MAIN;
-  //   //   appState.oledUpdated = 0;
-  //   //   break;
-  //   case EncoderEventType::Click:
-  //     appState.menuState.selected = appState.menuState.selected ? 0 : 1;
-  //     appState.oledUpdated = 0;
-  //     break;
-  //   default:
-  //     break;
-  //   }
-  // }
 }

@@ -57,8 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define SNS_BTN_Pin GPIO_PIN_12
-#define SNS_BTN_GPIO_Port GPIOB
+#define PUMP_Pin GPIO_PIN_15
+#define PUMP_GPIO_Port GPIOC
 #define ENC_BTN_Pin GPIO_PIN_5
 #define ENC_BTN_GPIO_Port GPIOB
 

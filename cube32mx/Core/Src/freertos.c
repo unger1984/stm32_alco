@@ -25,21 +25,17 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "app_shared.h"
-#include "task_encoder.h"
-#include "task_oled.h"
-#include "task_servo.h"
+#include "app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticSemaphore_t osStaticSemaphoreDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-volatile AppState appState;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,6 +45,7 @@ volatile AppState appState;
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -64,6 +61,13 @@ const osThreadAttr_t taskEncoder_attributes = {
     .stack_size = 128 * 4,
     .priority = (osPriority_t)osPriorityNormal,
 };
+/* Definitions for taskPump */
+osThreadId_t taskPumpHandle;
+const osThreadAttr_t taskPump_attributes = {
+    .name = "taskPump",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
 /* Definitions for taskServo */
 osThreadId_t taskServoHandle;
 const osThreadAttr_t taskServo_attributes = {
@@ -76,29 +80,52 @@ osThreadId_t taskOledHandle;
 const osThreadAttr_t taskOled_attributes = {
     .name = "taskOled",
     .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityLow,
+    .priority = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for appStateMutex */
-osSemaphoreId_t appStateMutexHandle;
-osStaticSemaphoreDef_t menuStateMutexControlBlock;
-const osSemaphoreAttr_t appStateMutex_attributes = {
-    .name = "appStateMutex",
-    .cb_mem = &menuStateMutexControlBlock,
-    .cb_size = sizeof(menuStateMutexControlBlock),
+/* Definitions for taskGlassLeds */
+osThreadId_t taskGlassLedsHandle;
+const osThreadAttr_t taskGlassLeds_attributes = {
+    .name = "taskGlassLeds",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for updateEvent */
-osEventFlagsId_t updateEventHandle;
-const osEventFlagsAttr_t updateEvent_attributes = {.name = "updateEvent"};
+/* Definitions for taskGlassBtns */
+osThreadId_t taskGlassBtnsHandle;
+const osThreadAttr_t taskGlassBtns_attributes = {
+    .name = "taskGlassBtns",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for taskManager */
+osThreadId_t taskManagerHandle;
+const osThreadAttr_t taskManager_attributes = {
+    .name = "taskManager",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for queueManager */
+osMessageQueueId_t queueManagerHandle;
+const osMessageQueueAttr_t queueManager_attributes = {.name = "queueManager"};
+/* Definitions for queuePump */
+osMessageQueueId_t queuePumpHandle;
+const osMessageQueueAttr_t queuePump_attributes = {.name = "queuePump"};
+/* Definitions for queueServo */
+osMessageQueueId_t queueServoHandle;
+const osMessageQueueAttr_t queueServo_attributes = {.name = "queueServo"};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+extern void TaskEncoder(void *argument);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
 void StartTaskEncoder(void *argument);
+void StartTaskPump(void *argument);
 void StartTaskServo(void *argument);
 void StartTaskOled(void *argument);
+void StartTaskGladsLeds(void *argument);
+void StartTaskGlassBtns(void *argument);
+void StartTaskManager(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -109,15 +136,12 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
  */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
+
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* Create the semaphores(s) */
-  /* creation of appStateMutex */
-  appStateMutexHandle = osSemaphoreNew(1, 1, &appStateMutex_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
@@ -126,6 +150,19 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
+
+  /* Create the queue(s) */
+  /* creation of queueManager */
+  queueManagerHandle =
+      osMessageQueueNew(7, sizeof(ManagerEvent_t), &queueManager_attributes);
+
+  /* creation of queuePump */
+  queuePumpHandle =
+      osMessageQueueNew(1, sizeof(uint8_t), &queuePump_attributes);
+
+  /* creation of queueServo */
+  queueServoHandle =
+      osMessageQueueNew(1, sizeof(uint8_t), &queueServo_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -140,19 +177,30 @@ void MX_FREERTOS_Init(void) {
   taskEncoderHandle =
       osThreadNew(StartTaskEncoder, NULL, &taskEncoder_attributes);
 
+  /* creation of taskPump */
+  taskPumpHandle = osThreadNew(StartTaskPump, NULL, &taskPump_attributes);
+
   /* creation of taskServo */
   taskServoHandle = osThreadNew(StartTaskServo, NULL, &taskServo_attributes);
 
   /* creation of taskOled */
   taskOledHandle = osThreadNew(StartTaskOled, NULL, &taskOled_attributes);
 
+  /* creation of taskGlassLeds */
+  taskGlassLedsHandle =
+      osThreadNew(StartTaskGladsLeds, NULL, &taskGlassLeds_attributes);
+
+  /* creation of taskGlassBtns */
+  taskGlassBtnsHandle =
+      osThreadNew(StartTaskGlassBtns, NULL, &taskGlassBtns_attributes);
+
+  /* creation of taskManager */
+  taskManagerHandle =
+      osThreadNew(StartTaskManager, NULL, &taskManager_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
-  /* Create the event(s) */
-  /* creation of updateEvent */
-  updateEventHandle = osEventFlagsNew(&updateEvent_attributes);
 
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
@@ -184,13 +232,29 @@ void StartDefaultTask(void *argument) {
 /* USER CODE END Header_StartTaskEncoder */
 void StartTaskEncoder(void *argument) {
   /* USER CODE BEGIN StartTaskEncoder */
-  taskEncoder_Init();
+  TaskEncoder(argument);
   /* Infinite loop */
   for (;;) {
-    taskEncoder_Run();
     osDelay(1);
   }
   /* USER CODE END StartTaskEncoder */
+}
+
+/* USER CODE BEGIN Header_StartTaskPump */
+/**
+ * @brief Function implementing the taskPump thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTaskPump */
+void StartTaskPump(void *argument) {
+  /* USER CODE BEGIN StartTaskPump */
+  TaskPump(argument);
+  /* Infinite loop */
+  for (;;) {
+    osDelay(1);
+  }
+  /* USER CODE END StartTaskPump */
 }
 
 /* USER CODE BEGIN Header_StartTaskServo */
@@ -202,10 +266,9 @@ void StartTaskEncoder(void *argument) {
 /* USER CODE END Header_StartTaskServo */
 void StartTaskServo(void *argument) {
   /* USER CODE BEGIN StartTaskServo */
-  taskServo_Init();
+  TaskServo(argument);
   /* Infinite loop */
   for (;;) {
-    taskServo_Run();
     osDelay(1);
   }
   /* USER CODE END StartTaskServo */
@@ -220,13 +283,60 @@ void StartTaskServo(void *argument) {
 /* USER CODE END Header_StartTaskOled */
 void StartTaskOled(void *argument) {
   /* USER CODE BEGIN StartTaskOled */
-  taskOled_Init();
   /* Infinite loop */
   for (;;) {
-    taskOled_Run();
     osDelay(1);
   }
   /* USER CODE END StartTaskOled */
+}
+
+/* USER CODE BEGIN Header_StartTaskGladsLeds */
+/**
+ * @brief Function implementing the taskGlassLeds thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTaskGladsLeds */
+void StartTaskGladsLeds(void *argument) {
+  /* USER CODE BEGIN StartTaskGladsLeds */
+  /* Infinite loop */
+  for (;;) {
+    osDelay(1);
+  }
+  /* USER CODE END StartTaskGladsLeds */
+}
+
+/* USER CODE BEGIN Header_StartTaskGlassBtns */
+/**
+ * @brief Function implementing the taskGlassBtns thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTaskGlassBtns */
+void StartTaskGlassBtns(void *argument) {
+  /* USER CODE BEGIN StartTaskGlassBtns */
+  /* Infinite loop */
+  for (;;) {
+    osDelay(1);
+  }
+  /* USER CODE END StartTaskGlassBtns */
+}
+
+/* USER CODE BEGIN Header_StartTaskManager */
+/**
+ * @brief Function implementing the taskManager thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTaskManager */
+void StartTaskManager(void *argument) {
+  /* USER CODE BEGIN StartTaskManager */
+  TaskManager(argument);
+  /* Infinite loop */
+  for (;;) {
+    osDelay(1);
+  }
+  /* USER CODE END StartTaskManager */
 }
 
 /* Private application code --------------------------------------------------*/
