@@ -50,6 +50,7 @@ void Encoder::HandleButton() {
     buttonPressTime_ = HAL_GetTick();
     lastDuration_ = 0;
     currentEvent_.type = EncoderEventType::Press;
+    currentEvent_.pressDurationMs = 0;
   } else if (lastButtonState_ == GPIO_PIN_RESET && state == GPIO_PIN_SET) {
     // отпустили
     currentEvent_.pressDurationMs = HAL_GetTick() - buttonPressTime_;
@@ -61,7 +62,7 @@ void Encoder::HandleButton() {
   } else if (lastButtonState_ == GPIO_PIN_RESET && state == GPIO_PIN_RESET) {
     // удерживают
     currentEvent_.pressDurationMs = HAL_GetTick() - buttonPressTime_;
-    if (currentEvent_.pressDurationMs - lastDuration_ > 10) {
+    if (currentEvent_.pressDurationMs > SHORT_PRESS_THRESHOLD_MS) {
       currentEvent_.type = EncoderEventType::Hold;
       lastDuration_ = currentEvent_.pressDurationMs;
     }
