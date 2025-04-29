@@ -21,7 +21,7 @@ void sendServoStatus(uint8_t angle) {
       .source = SERVO,
       .data =
           {
-              .angle = angle,
+              .servo = angle,
           },
   };
   osMessageQueuePut(queueManagerHandle, &event, 0, osWaitForever);

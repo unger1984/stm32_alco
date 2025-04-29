@@ -75,10 +75,10 @@ const osThreadAttr_t taskServo_attributes = {
     .stack_size = 128 * 4,
     .priority = (osPriority_t)osPriorityNormal,
 };
-/* Definitions for taskOled */
-osThreadId_t taskOledHandle;
-const osThreadAttr_t taskOled_attributes = {
-    .name = "taskOled",
+/* Definitions for taskDisplay */
+osThreadId_t taskDisplayHandle;
+const osThreadAttr_t taskDisplay_attributes = {
+    .name = "taskDisplay",
     .stack_size = 128 * 4,
     .priority = (osPriority_t)osPriorityNormal,
 };
@@ -115,14 +115,13 @@ const osMessageQueueAttr_t queueServo_attributes = {.name = "queueServo"};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-extern void TaskEncoder(void *argument);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
 void StartTaskEncoder(void *argument);
 void StartTaskPump(void *argument);
 void StartTaskServo(void *argument);
-void StartTaskOled(void *argument);
+void StartTaskDisplay(void *argument);
 void StartTaskGladsLeds(void *argument);
 void StartTaskGlassBtns(void *argument);
 void StartTaskManager(void *argument);
@@ -183,8 +182,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of taskServo */
   taskServoHandle = osThreadNew(StartTaskServo, NULL, &taskServo_attributes);
 
-  /* creation of taskOled */
-  taskOledHandle = osThreadNew(StartTaskOled, NULL, &taskOled_attributes);
+  /* creation of taskDisplay */
+  taskDisplayHandle =
+      osThreadNew(StartTaskDisplay, NULL, &taskDisplay_attributes);
 
   /* creation of taskGlassLeds */
   taskGlassLedsHandle =
@@ -274,20 +274,21 @@ void StartTaskServo(void *argument) {
   /* USER CODE END StartTaskServo */
 }
 
-/* USER CODE BEGIN Header_StartTaskOled */
+/* USER CODE BEGIN Header_StartTaskDisplay */
 /**
- * @brief Function implementing the taskOled thread.
+ * @brief Function implementing the taskDisplay thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartTaskOled */
-void StartTaskOled(void *argument) {
-  /* USER CODE BEGIN StartTaskOled */
+/* USER CODE END Header_StartTaskDisplay */
+void StartTaskDisplay(void *argument) {
+  /* USER CODE BEGIN StartTaskDisplay */
+  TaskDisplay(argument);
   /* Infinite loop */
   for (;;) {
     osDelay(1);
   }
-  /* USER CODE END StartTaskOled */
+  /* USER CODE END StartTaskDisplay */
 }
 
 /* USER CODE BEGIN Header_StartTaskGladsLeds */

@@ -11,7 +11,7 @@ void TaskEncoder(void *argument) {
 
   lastCounter_ = __HAL_TIM_GET_COUNTER(&htim4);
   lastButtonState_ = HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin);
-  uint32_t buttonPressTime_;
+  uint32_t buttonPressTime_ = 0;
 
   for (;;) {
     EncoderState_t state = EncoderState_t{};

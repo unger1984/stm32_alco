@@ -4,6 +4,8 @@
 #include <cmsis_os.h>
 #include <stdint.h>
 
+#include "menu.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,24 +31,44 @@ typedef enum {
   PUMP,
   SERVO,
   GLASS,
+  // STATE,
 } ManagerEventSource_t;
+
+/// @brief Глобальное Тип состояния
+typedef enum {
+  Idle = 0,
+  Work,
+  Menu,
+} AppStateType_t;
 
 typedef struct {
   ManagerEventSource_t source;
   union {
     EncoderState_t encoder; // от энеодера
     uint8_t pump;           // 1 включено, 0 выключено
-    uint8_t angle;          // угол поворота сервы
+    uint8_t servo;          // угол поворота сервы
+    // AppStateType_t newState; // новыое состояниу
   } data;
 } ManagerEvent_t;
+
+typedef struct {
+  AppStateType_t type;
+  uint8_t servo;
+  uint8_t pump;
+  struct MenuState menu;
+} AppState;
+
+extern AppState currentState;
 
 extern osMessageQueueId_t queueManagerHandle;
 extern osMessageQueueId_t queuePumpHandle;
 extern osMessageQueueId_t queueServoHandle;
+extern osThreadId_t taskDisplayHandle;
 void TaskEncoder(void *argument);
 void TaskManager(void *argument);
 void TaskPump(void *argument);
 void TaskServo(void *argument);
+void TaskDisplay(void *argument);
 
 #ifdef __cplusplus
 }
