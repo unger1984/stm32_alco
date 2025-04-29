@@ -1,4 +1,4 @@
-#include "app.h"
+#include "AppContext.h"
 #include "utils.h"
 #include <oled.h>
 #include <stdio.h>
@@ -12,7 +12,7 @@ OLED oled;
 char txt[128];
 
 void drowIdle();
-void drowMenu(MenuState_t state);
+void drowMenu(MenuState *state);
 void drowDrain();
 void drowCalibration();
 
@@ -24,12 +24,12 @@ void TaskDisplay(void *argument) {
   for (;;) {
     uint32_t flags = osThreadFlagsWait(0x01, osFlagsWaitAny, osWaitForever);
     if (flags & 0x01) {
-      switch (currentState.type) {
-      case AppStateType_t::IDLE:
+      switch (app.getState()->getType()) {
+      case AppStateType::IDLE:
         drowIdle();
         break;
-      case AppStateType_t::MENU:
-        drowMenu(currentState.menu);
+      case AppStateType::MENU:
+        drowMenu(app.getMenu());
         break;
       default:
         break;
@@ -66,24 +66,27 @@ uint8_t getTopIndex(uint8_t index, uint8_t totalItems) {
   }
 }
 
-void drowMenu(MenuState_t state) {
+void drowMenu(MenuState *state) {
   oled.clear();
-  switch (currentState.menu.current->type) {
-  case MenuItemType_t::Menu:
-    if (state.current->size > 0) {
+  switch (state->getCurrent()->getType()) {
+  case MenuItemType::Menu: {
+    uint8_t size = state->getCurrent()->getSize();
+    uint8_t index = state->getIndex();
+    if (size > 0) {
       // Отрисуем дочерние пункты
-      uint8_t topIndex = getTopIndex(state.index, state.current->size);
+      uint8_t topIndex = getTopIndex(state->getIndex(), size);
       oled.setFont(u8g2_font_unifont_t_cyrillic);
       for (int i = 0; i < 4; i++) {
-        if (topIndex + i >= state.current->size) {
+        if (topIndex + i >= size) {
           break;
         }
-        int selected = state.index - topIndex;
-        const MenuItem *itemMenu = state.current->children[topIndex + i];
+        int selected = index - topIndex;
+        const MenuItem *itemMenu =
+            state->getCurrent()->getChildrent()[topIndex + i];
 
         oled.setColor(1);
         if (selected == i) {
-          if (state.isSelected) {
+          if (state->isSelected()) {
             oled.box(0, (i * 16), WIDTH, 15);
             oled.setColor(0);
           } else {
@@ -91,21 +94,21 @@ void drowMenu(MenuState_t state) {
           }
         }
 
-        oled.print(2, 12 + (i * 16), itemMenu->name);
+        oled.print(2, 12 + (i * 16), itemMenu->getName());
 
-        if (itemMenu->type == MenuItemType::Settings) {
-          snprintf(txt, sizeof(txt), "%d", *(uint8_t *)itemMenu->settingsPtr);
-          oled.print(WIDTH - 2 - utf8_strlen(txt) * 7, 12 + (i * 16), txt);
-        }
+        // if (itemMenu->type == MenuItemType::Edit) {
+        //   snprintf(txt, sizeof(txt), "%d", *(uint8_t
+        //   *)itemMenu->settingsPtr); oled.print(WIDTH - 2 - utf8_strlen(txt) *
+        //   7, 12 + (i * 16), txt);
+        // }
       }
       oled.update();
     }
-    break;
-  case MenuItemType_t::Action:
-    if (isStringEqueal(currentState.menu.current->name, MENU_DRAIN)) {
+  } break;
+  case MenuItemType::Action:
+    if (app.getMenu()->getCurrent()->isEqual(MENU_DRAIN)) {
       drowDrain();
-    } else if (isStringEqueal(currentState.menu.current->name,
-                              MENU_CALIBRATION)) {
+    } else if (app.getMenu()->getCurrent()->isEqual(MENU_CALIBRATION)) {
       drowCalibration();
     }
     break;
@@ -121,7 +124,7 @@ void drowDrain() {
   snprintf(txt, sizeof(txt), text);
   oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
 
-  float time = (float)currentState.hold / 1000;
+  float time = (float)app.getHold() / 1000;
   int t_int = (int)time;
   // int t_frac = (int)(time * 10) % 10;
   int t_frac = (int)(time * 100) % 100;
@@ -137,7 +140,7 @@ void drowCalibration() {
   snprintf(txt, sizeof(txt), text);
   oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
 
-  float time = (float)currentState.hold / 1000;
+  float time = (float)app.getHold() / 1000;
   int t_int = (int)time;
   int t_frac = (int)(time * 100) % 100;
   snprintf(txt, sizeof(txt), "%d.%02dс", t_int, t_frac);

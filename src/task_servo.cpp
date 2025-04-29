@@ -1,4 +1,4 @@
-#include "app.h"
+#include "app_shared.h"
 #include "tim.h"
 #include <cmsis_os2.h>
 
@@ -17,7 +17,7 @@ void setAngle(uint8_t angle) {
 }
 
 void sendServoStatus(uint8_t angle) {
-  ManagerEvent_t event = {
+  ManagerEvent event = {
       .source = SERVO,
       .data =
           {

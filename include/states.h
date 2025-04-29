@@ -7,9 +7,9 @@
 extern "C" {
 #endif
 
-void handleStateIdle(ManagerEvent_t event);
-void handleStateWork(ManagerEvent_t event);
-void handleStateMenu(ManagerEvent_t event);
+// void handleStateIdle(ManagerEvent_t event);
+// void handleStateWork(ManagerEvent_t event);
+// void handleStateMenu(ManagerEvent_t event);
 
 #ifdef __cplusplus
 }

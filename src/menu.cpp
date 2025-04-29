@@ -1,172 +1,69 @@
-#include "menu.h"
-#include "settings.h"
+#include "Menu.h"
+#include "utils.h"
+// #include "settings.h"
 
-MenuItem_t menuMain = {
-    .name = "Настройки",
-    .type = MenuItemType_t::Menu,
-    .parent = NULL,
-    .children =
-        (MenuItem_t *[]){
-            &menuDrain,
-            &menuDosage,
-            &menuServo,
-            &menuCalibration,
-        },
-    .size = 4,
+const char *MenuItem::getName() const { return name; };
+MenuItemType MenuItem::getType() const { return type; };
+MenuItem *MenuItem::getParent() const { return parent; };
+MenuItem **MenuItem::getChildrent() const { return children; };
+uint8_t MenuItem::getSize() const { return size; };
+bool MenuItem::isEqual(const char *value) {
+  return isStringEqual(name, value);
 };
 
-MenuItem_t menuDrain = {
-    .name = MENU_DRAIN,
-    .type = MenuItemType_t::Action,
-    .parent = &menuMain,
-    .children = NULL,
-    .size = 0,
+MenuItem *mainChildren[] = {
+    &menuDrain,
+    &menuDosage,
+    &menuServo,
+    &menuCalibration,
 };
 
-MenuItem_t menuDosageG1 = {
-    .name = "Доза 1",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuDosage,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.doses.d1,
+MenuItem menuMain("Настройки", MenuItemType::Menu, nullptr, mainChildren, 4);
+
+MenuItem menuDrain(MENU_DRAIN, MenuItemType::Action, &menuMain, nullptr, 0);
+
+MenuItem menuDosageG1("Доза 1", MenuItemType::Edit, &menuDosage, nullptr, 0);
+MenuItem menuDosageG2("Доза 2", MenuItemType::Edit, &menuDosage, nullptr, 0);
+MenuItem menuDosageG3("Доза 3", MenuItemType::Edit, &menuDosage, nullptr, 0);
+MenuItem menuDosageG4("Доза 4", MenuItemType::Edit, &menuDosage, nullptr, 0);
+MenuItem menuDosageG5("Доза 5", MenuItemType::Edit, &menuDosage, nullptr, 0);
+MenuItem menuDosageG6("Доза 6", MenuItemType::Edit, &menuDosage, nullptr, 0);
+
+MenuItem *dosageChildren[] = {
+    &menuDosageG1, &menuDosageG2, &menuDosageG3,
+    &menuDosageG4, &menuDosageG5, &menuDosageG6,
 };
 
-MenuItem_t menuDosageG2 = {
-    .name = "Доза 2",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuDosage,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.doses.d2,
+MenuItem menuDosage(MENU_DOSAGE, MenuItemType::Menu, &menuMain, dosageChildren,
+                    6);
+
+MenuItem menuServoG1("Стопка 1", MenuItemType::Edit, &menuServo, nullptr, 0);
+MenuItem menuServoG2("Стопка 2", MenuItemType::Edit, &menuServo, nullptr, 0);
+MenuItem menuServoG3("Стопка 3", MenuItemType::Edit, &menuServo, nullptr, 0);
+MenuItem menuServoG4("Стопка 4", MenuItemType::Edit, &menuServo, nullptr, 0);
+MenuItem menuServoG5("Стопка 5", MenuItemType::Edit, &menuServo, nullptr, 0);
+MenuItem menuServoG6("Стопка 6", MenuItemType::Edit, &menuServo, nullptr, 0);
+
+MenuItem *servoChildren[] = {
+    &menuServoG1, &menuServoG2, &menuServoG3,
+    &menuServoG4, &menuServoG5, &menuServoG6,
 };
 
-MenuItem_t menuDosageG3 = {
-    .name = "Доза 3",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuDosage,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.doses.d3,
+MenuItem menuServo(MENU_SERVO, MenuItemType::Menu, &menuMain, servoChildren, 6);
+
+MenuItem menuCalibration(MENU_CALIBRATION, MenuItemType::Action, &menuMain,
+                         nullptr, 0);
+
+void MenuState::setCurrent(MenuItem *menu) {
+  current = menu;
+  index = 0;
+  selected = false;
 };
 
-MenuItem_t menuDosageG4 = {
-    .name = "Доза 4",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuDosage,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.doses.d4,
-};
+MenuItem *MenuState::getCurrent() { return current; };
+uint8_t MenuState::getIndex() { return index; };
+void MenuState::setIndex(uint8_t value) { index = value; };
+bool MenuState::isSelected() { return selected; }
+void MenuState::setSelected(bool value) { selected = value; };
 
-MenuItem_t menuDosageG5 = {
-    .name = "Доза 5",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuDosage,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.doses.d5,
-};
-
-MenuItem_t menuDosageG6 = {
-    .name = "Доза 6",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuDosage,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.doses.d6,
-};
-
-MenuItem_t menuDosage = {
-    .name = MENU_DOSAGE,
-    .type = MenuItemType_t::Menu,
-    .parent = &menuMain,
-    .children =
-        (MenuItem_t *[]){
-            &menuDosageG1,
-            &menuDosageG2,
-            &menuDosageG3,
-            &menuDosageG4,
-            &menuDosageG5,
-            &menuDosageG6,
-        },
-    .size = 6,
-};
-
-MenuItem_t menuServoG1 = {
-    .name = "Стопка 1",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuServo,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.angles.a1,
-};
-
-MenuItem_t menuServoG2 = {
-    .name = "Стопка 2",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuServo,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.angles.a2,
-};
-
-MenuItem_t menuServoG3 = {
-    .name = "Стопка 3",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuServo,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.angles.a3,
-};
-
-MenuItem_t menuServoG4 = {
-    .name = "Стопка 4",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuServo,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.angles.a4,
-};
-
-MenuItem_t menuServoG5 = {
-    .name = "Стопка 5",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuServo,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.angles.a5,
-};
-
-MenuItem_t menuServoG6 = {
-    .name = "Стопка 6",
-    .type = MenuItemType_t::Settings,
-    .parent = &menuServo,
-    .children = NULL,
-    .size = 0,
-    .settingsPtr = &currentSettings.angles.a6,
-};
-
-MenuItem_t menuServo = {
-    .name = MENU_SERVO,
-    .type = MenuItemType_t::Menu,
-    .parent = &menuMain,
-    .children =
-        (MenuItem_t *[]){
-            &menuServoG1,
-            &menuServoG2,
-            &menuServoG3,
-            &menuServoG4,
-            &menuServoG5,
-            &menuServoG6,
-        },
-    .size = 6,
-};
-
-MenuItem_t menuCalibration = {
-    .name = MENU_CALIBRATION,
-    .type = MenuItemType_t::Action,
-    .parent = &menuMain,
-    .children = NULL,
-    .size = 0,
-};
+MenuState menuState(&menuMain, 0, 0);

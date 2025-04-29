@@ -8,7 +8,7 @@ int compareStrings(const char *a, const char *b) {
   return *a - *b;
 };
 
-uint8_t isStringEqueal(const char *a, const char *b) {
+uint8_t isStringEqual(const char *a, const char *b) {
   return compareStrings(a, b) ? 0 : 1;
 }
 

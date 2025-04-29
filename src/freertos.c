@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "app.h"
+#include "app_shared.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -153,7 +153,7 @@ void MX_FREERTOS_Init(void) {
   /* Create the queue(s) */
   /* creation of queueManager */
   queueManagerHandle =
-      osMessageQueueNew(7, sizeof(ManagerEvent_t), &queueManager_attributes);
+      osMessageQueueNew(7, sizeof(ManagerEvent), &queueManager_attributes);
 
   /* creation of queuePump */
   queuePumpHandle =

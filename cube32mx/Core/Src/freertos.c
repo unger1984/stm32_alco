@@ -121,7 +121,6 @@ const osMessageQueueAttr_t queueServo_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-extern void TaskEncoder(void *argument);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -159,7 +158,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the queue(s) */
   /* creation of queueManager */
-  queueManagerHandle = osMessageQueueNew (7, sizeof(ManagerEvent_t), &queueManager_attributes);
+  queueManagerHandle = osMessageQueueNew (7, sizeof(ManagerEvent), &queueManager_attributes);
 
   /* creation of queuePump */
   queuePumpHandle = osMessageQueueNew (1, sizeof(uint8_t), &queuePump_attributes);
@@ -279,17 +278,17 @@ void StartTaskServo(void *argument)
 
 /* USER CODE BEGIN Header_StartTaskDisplay */
 /**
-* @brief Function implementing the taskDisplay thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the taskDisplay thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartTaskDisplay */
 void StartTaskDisplay(void *argument)
 {
   /* USER CODE BEGIN StartTaskDisplay */
+  TaskDisplay(argument);
   /* Infinite loop */
-  for(;;)
-  {
+  for (;;) {
     osDelay(1);
   }
   /* USER CODE END StartTaskDisplay */

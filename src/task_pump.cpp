@@ -1,10 +1,10 @@
-#include "app.h"
+#include "app_shared.h"
 #include "gpio.h"
 #include <cmsis_os2.h>
 #include <stdio.h>
 
 void sendPumpStatus(uint8_t pump) {
-  ManagerEvent_t event = {
+  ManagerEvent event = {
       .source = PUMP,
       .data =
           {
@@ -15,12 +15,12 @@ void sendPumpStatus(uint8_t pump) {
 }
 
 void TaskPump(void *argument) {
-  uint8_t status = 0;
+  bool status = 0;
   HAL_GPIO_WritePin(PUMP_GPIO_Port, PUMP_Pin, GPIO_PinState::GPIO_PIN_RESET);
   sendPumpStatus(status);
 
   for (;;) {
-    uint8_t cmd;
+    bool cmd;
     osStatus_t wait =
         osMessageQueueGet(queuePumpHandle, &cmd, NULL, osWaitForever);
     if (wait == osStatus_t::osOK) {
