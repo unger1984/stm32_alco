@@ -103,7 +103,7 @@ void AppStateMenu::onClick(const EncoderState &state) {
           app.updateServo(90);
         } else if (indexMenu->isEqual(MENU_CALIBRATION)) {
           // Это мы вошли в калибровку, значит надо повернуть серво
-          // app.setHold(currentState.currentSettings->calibration);
+          app.setHold(app.getSettings()->calibration);
           app.updateServo(90);
         }
         app.updateDisplay();
@@ -120,8 +120,7 @@ void AppStateMenu::onClick(const EncoderState &state) {
           // выделим
           app.getMenu()->setSelected(true);
           if (app.getMenu()->getCurrent()->isEqual(MENU_SERVO)) {
-            // uint8_t angle = *(uint8_t *)indexMenu->settingsPtr;
-            // osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+            app.updateServo(*(uint8_t *)indexMenu->getParam());
           }
         }
         osThreadFlagsSet(taskDisplayHandle, 0x01);
@@ -137,7 +136,7 @@ void AppStateMenu::onClick(const EncoderState &state) {
       app.updateServo(0);
     } else if (app.getMenu()->getCurrent()->isEqual(MENU_CALIBRATION)) {
       // Это мы выходим из калибровки, значит надо повернуть серво
-      // currentState.currentSettings->calibration = currentState.hold;
+      app.getSettings()->calibration = app.getHold();
       app.setHold(0);
       app.updateServo(0);
     }
@@ -166,29 +165,28 @@ void AppStateMenu::onRotate(const EncoderState &state) {
   case MenuItemType::Menu:
     // Это подменю
     if (app.getMenu()->isSelected()) {
-      // MenuItem *itemMenu = app.getMenu()
-      //                          ->getCurrent()
-      //                          ->getChildrent()[app.getMenu()->getIndex()];
-      // uint8_t val = *(uint8_t *)itemMenu->settingsPtr;
-      // int newval = val + event.steps * (event.press ? 10 : 1);
-      // if (isStringEqueal(currentState.menu.current->name, MENU_SERVO)) {
-      //   if (newval > 180)
-      //     newval = 180;
-      //   if (newval < 0)
-      //     newval = 0;
-      //   uint8_t angle = newval;
-      //   osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
-      // } else if (isStringEqueal(currentState.menu.current->name,
-      // MENU_DOSAGE)) {
-      //   if (newval > 100)
-      //     newval = 100;
-      //   if (newval < 0)
-      //     newval = 0;
-      // }
-      // *(uint8_t
-      // *)currentState.menu.current->children[currentState.menu.index]
-      //      ->settingsPtr = newval;
-      // osThreadFlagsSet(taskDisplayHandle, 0x01);
+      MenuItem *itemMenu = app.getMenu()
+                               ->getCurrent()
+                               ->getChildrent()[app.getMenu()->getIndex()];
+      uint8_t val = *(uint8_t *)itemMenu->getParam();
+      int newval = val + state.steps * (state.press ? 10 : 1);
+      if (app.getMenu()->getCurrent()->isEqual(MENU_SERVO)) {
+        if (newval > 180)
+          newval = 180;
+        if (newval < 0)
+          newval = 0;
+        app.updateServo(newval);
+      } else if (app.getMenu()->getCurrent()->isEqual(MENU_DOSAGE)) {
+        if (newval > 100)
+          newval = 100;
+        if (newval < 0)
+          newval = 0;
+      }
+      *(uint8_t *)app.getMenu()
+           ->getCurrent()
+           ->getChildrent()[app.getMenu()->getIndex()]
+           ->getParam() = newval;
+      app.updateDisplay();
     } else {
       // выделения нет - перемещаемся между пунктами
       uint8_t size = app.getMenu()->getCurrent()->getSize();

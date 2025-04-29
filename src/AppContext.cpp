@@ -33,6 +33,8 @@ AppStateBase *AppContext::getState() const { return currentState; }
 
 MenuState *AppContext::getMenu() const { return menu; };
 
+AppSettings *AppContext::getSettings() { return settings; };
+
 // Settings *AppContext::getSettings() { return &settings; };
 
 AppContext app;

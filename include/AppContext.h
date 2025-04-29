@@ -3,6 +3,7 @@
 #ifndef _APP_CONTEXT_H
 #define _APP_CONTEXT_H
 
+#include "AppSettings.h"
 #include "AppState.h"
 #include "Menu.h"
 #include "app_shared.h"
@@ -31,7 +32,7 @@ public:
   /// @brief сколько времени держат нажатым энкодер
   uint32_t getHold() const;
   void setHold(uint32_t value);
-  //   Settings *getSettings();
+  AppSettings *getSettings();
 
   AppStateBase *getState() const;
   MenuState *getMenu() const;
@@ -42,7 +43,7 @@ private:
   bool pump;
   uint32_t hold;
   MenuState *menu = &menuState;
-  //   Settings settings;
+  AppSettings *settings = &appSettings;
 };
 
 extern AppContext app;

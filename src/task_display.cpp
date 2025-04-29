@@ -96,11 +96,10 @@ void drowMenu(MenuState *state) {
 
         oled.print(2, 12 + (i * 16), itemMenu->getName());
 
-        // if (itemMenu->type == MenuItemType::Edit) {
-        //   snprintf(txt, sizeof(txt), "%d", *(uint8_t
-        //   *)itemMenu->settingsPtr); oled.print(WIDTH - 2 - utf8_strlen(txt) *
-        //   7, 12 + (i * 16), txt);
-        // }
+        if (itemMenu->getType() == MenuItemType::Edit) {
+          snprintf(txt, sizeof(txt), "%d", *(uint8_t *)itemMenu->getParam());
+          oled.print(WIDTH - 2 - utf8_strlen(txt) * 7, 12 + (i * 16), txt);
+        }
       }
       oled.update();
     }

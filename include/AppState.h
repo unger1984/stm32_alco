@@ -23,19 +23,7 @@ public:
   virtual void onExit() = 0;
 
   /// @brief Выполняется при событии
-  virtual void onEvent(const ManagerEvent &event) {
-    // Тут поработаем с событиями которые обрабатываются одинаково везде
-    switch (event.source) {
-    case ManagerEventSource::SERVO:
-      // app.setServo(event.data.servo);
-      break;
-    case ManagerEventSource::PUMP:
-      // app.setPump(event.data.pump);
-      break;
-    default:
-      break;
-    }
-  };
+  virtual void onEvent(const ManagerEvent &event);
 
   virtual ~AppStateBase() = default;
 };

@@ -26,6 +26,7 @@ public:
   MenuItem **getChildrent() const;
   uint8_t getSize() const;
   bool isEqual(const char *value);
+  void *getParam() const;
 
 private:
   const char *name;
