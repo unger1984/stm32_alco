@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "settings.h"
 
 MenuItem_t menuMain = {
     .name = "Настройки",
@@ -15,7 +16,7 @@ MenuItem_t menuMain = {
 };
 
 MenuItem_t menuDrain = {
-    .name = "Прокачка",
+    .name = MENU_DRAIN,
     .type = MenuItemType_t::Action,
     .parent = &menuMain,
     .children = NULL,
@@ -28,6 +29,7 @@ MenuItem_t menuDosageG1 = {
     .parent = &menuDosage,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.doses.d1,
 };
 
 MenuItem_t menuDosageG2 = {
@@ -36,6 +38,7 @@ MenuItem_t menuDosageG2 = {
     .parent = &menuDosage,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.doses.d2,
 };
 
 MenuItem_t menuDosageG3 = {
@@ -44,6 +47,7 @@ MenuItem_t menuDosageG3 = {
     .parent = &menuDosage,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.doses.d3,
 };
 
 MenuItem_t menuDosageG4 = {
@@ -52,6 +56,7 @@ MenuItem_t menuDosageG4 = {
     .parent = &menuDosage,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.doses.d4,
 };
 
 MenuItem_t menuDosageG5 = {
@@ -60,6 +65,7 @@ MenuItem_t menuDosageG5 = {
     .parent = &menuDosage,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.doses.d5,
 };
 
 MenuItem_t menuDosageG6 = {
@@ -68,10 +74,11 @@ MenuItem_t menuDosageG6 = {
     .parent = &menuDosage,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.doses.d6,
 };
 
 MenuItem_t menuDosage = {
-    .name = "Дозы по рюмкам",
+    .name = MENU_DOSAGE,
     .type = MenuItemType_t::Menu,
     .parent = &menuMain,
     .children =
@@ -87,55 +94,61 @@ MenuItem_t menuDosage = {
 };
 
 MenuItem_t menuServoG1 = {
-    .name = "Рюмка 1",
+    .name = "Стопка 1",
     .type = MenuItemType_t::Settings,
     .parent = &menuServo,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.angles.a1,
 };
 
 MenuItem_t menuServoG2 = {
-    .name = "Рюмка 2",
+    .name = "Стопка 2",
     .type = MenuItemType_t::Settings,
     .parent = &menuServo,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.angles.a2,
 };
 
 MenuItem_t menuServoG3 = {
-    .name = "Рюмка 3",
+    .name = "Стопка 3",
     .type = MenuItemType_t::Settings,
     .parent = &menuServo,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.angles.a3,
 };
 
 MenuItem_t menuServoG4 = {
-    .name = "Рюмка 4",
+    .name = "Стопка 4",
     .type = MenuItemType_t::Settings,
     .parent = &menuServo,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.angles.a4,
 };
 
 MenuItem_t menuServoG5 = {
-    .name = "Рюмка 5",
+    .name = "Стопка 5",
     .type = MenuItemType_t::Settings,
     .parent = &menuServo,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.angles.a5,
 };
 
 MenuItem_t menuServoG6 = {
-    .name = "Рюмка 6",
+    .name = "Стопка 6",
     .type = MenuItemType_t::Settings,
     .parent = &menuServo,
     .children = NULL,
     .size = 0,
+    .settingsPtr = &currentSettings.angles.a6,
 };
 
 MenuItem_t menuServo = {
-    .name = "Углы серво",
+    .name = MENU_SERVO,
     .type = MenuItemType_t::Menu,
     .parent = &menuMain,
     .children =
@@ -151,7 +164,7 @@ MenuItem_t menuServo = {
 };
 
 MenuItem_t menuCalibration = {
-    .name = "Калибровка",
+    .name = MENU_CALIBRATION,
     .type = MenuItemType_t::Action,
     .parent = &menuMain,
     .children = NULL,

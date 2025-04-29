@@ -125,7 +125,7 @@ void handleStateMenuEncoder_ShortPress(EncoderState_t event) {
           osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
         } else if (isStringEqueal(indexMenu->name, MENU_CALIBRATION)) {
           // Это мы вошли в калибровку, значит надо повернуть серво
-          currentState.hold = 0;
+          currentState.hold = currentState.currentSettings->calibration;
           uint8_t angle = 90;
           osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
         }
@@ -155,6 +155,7 @@ void handleStateMenuEncoder_ShortPress(EncoderState_t event) {
     } else if (isStringEqueal(currentState.menu.current->name,
                               MENU_CALIBRATION)) {
       // Это мы выходим из калибровки, значит надо повернуть серво
+      currentState.currentSettings->calibration = currentState.hold;
       currentState.hold = 0;
       uint8_t angle = 0;
       osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
@@ -178,7 +179,24 @@ void handleStateMenuEncoder_Rotate(EncoderState_t event) {
   case MenuItemType_t::Menu:
     // Это подменю
     if (currentState.menu.isSelected) {
-
+      MenuItem_t *itemMenu =
+          currentState.menu.current->children[currentState.menu.index];
+      uint8_t val = *(uint8_t *)itemMenu->settingsPtr;
+      int newval = val + event.steps * (event.press ? 10 : 1);
+      if (isStringEqueal(currentState.menu.current->name, MENU_SERVO)) {
+        if (newval > 180)
+          newval = 180;
+        if (newval < 0)
+          newval = 0;
+      } else if (isStringEqueal(currentState.menu.current->name, MENU_DOSAGE)) {
+        if (newval > 100)
+          newval = 100;
+        if (newval < 0)
+          newval = 0;
+      }
+      *(uint8_t *)currentState.menu.current->children[currentState.menu.index]
+           ->settingsPtr = newval;
+      osThreadFlagsSet(taskDisplayHandle, 0x01);
     } else {
       // выделения нет - перемещаемся между пунктами
       int8_t index = currentState.menu.index + event.steps;

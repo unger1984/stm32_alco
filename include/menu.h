@@ -1,11 +1,14 @@
 #ifndef _MENU_H
 #define _MENU_H
 
+#include "settings.h"
 #include <stddef.h>
 #include <stdint.h>
 
 #define MENU_DRAIN "Прокачка"
 #define MENU_CALIBRATION "Калибровка"
+#define MENU_DOSAGE "Дозы по стопкам"
+#define MENU_SERVO "Углы серво"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +26,8 @@ typedef struct MenuItem {
   struct MenuItem *parent;
   struct MenuItem **children;
   uint8_t size;
+  // SettingsSize_t settingsType;
+  void *settingsPtr;
 } MenuItem_t;
 
 typedef struct MenuState {

@@ -92,6 +92,11 @@ void drowMenu(MenuState_t state) {
         }
 
         oled.print(2, 12 + (i * 16), itemMenu->name);
+
+        if (itemMenu->type == MenuItemType::Settings) {
+          snprintf(txt, sizeof(txt), "%d", *(uint8_t *)itemMenu->settingsPtr);
+          oled.print(WIDTH - 2 - utf8_strlen(txt) * 7, 12 + (i * 16), txt);
+        }
       }
       oled.update();
     }

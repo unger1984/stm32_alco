@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "menu.h"
+#include "settings.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,6 +57,7 @@ typedef struct {
   uint8_t pump;
   uint32_t hold;
   struct MenuState menu;
+  Settings_t *currentSettings;
 } AppState;
 
 extern AppState currentState;

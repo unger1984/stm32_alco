@@ -18,6 +18,7 @@ void TaskManager(void *argument) {
               .index = 0,
               .isSelected = 0,
           },
+      .currentSettings = &currentSettings,
   };
 
   for (;;) {
