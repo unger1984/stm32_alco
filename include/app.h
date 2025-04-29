@@ -17,6 +17,7 @@ typedef enum {
   Rotate,  // вращение
   Press,   // Начало нажатия кнопки
   Release, // Отпускание кнопки
+  Hold,    // Удержание кнопки
 } EncoderEvent_t;
 
 typedef struct {
@@ -55,6 +56,7 @@ typedef struct {
   AppStateType_t type;
   uint8_t servo;
   uint8_t pump;
+  uint32_t hold;
   struct MenuState menu;
 } AppState;
 

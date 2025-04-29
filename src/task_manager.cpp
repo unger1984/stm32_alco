@@ -11,6 +11,7 @@ void TaskManager(void *argument) {
       .type = IDLE,
       .servo = 0,
       .pump = 0,
+      .hold = 0,
       .menu =
           {
               .current = NULL,

@@ -3,6 +3,8 @@
 #include <cmsis_os2.h>
 #include <stdio.h>
 
+#define MIN_HOLD_DURATION 50 // минимальное время после считается удержанно
+
 void TaskEncoder(void *argument) {
   uint16_t lastCounter_;
   GPIO_PinState lastButtonState_;
@@ -29,6 +31,13 @@ void TaskEncoder(void *argument) {
       state.pressDurationMs = millis() - buttonPressTime_;
       state.type = EncoderEvent_t::Release;
       state.press = 0;
+    } else if (lastButtonState_ == GPIO_PIN_RESET && btn == GPIO_PIN_RESET) {
+      // Держать кнопку
+      if (millis() - buttonPressTime_ >= MIN_HOLD_DURATION) {
+        state.type = EncoderEvent_t::Hold;
+        state.pressDurationMs = millis() - buttonPressTime_;
+        state.press = 1;
+      }
     }
     lastButtonState_ = btn;
 

@@ -1,5 +1,6 @@
 #include "states.h"
 #include "menu.h"
+#include "utils.h"
 
 #define LONG_PRESS_DURATION 500
 
@@ -51,48 +52,21 @@ void handleStateMenu(ManagerEvent_t event) {
   }
 }
 
-void handleStateMenuEncoder(EncoderState_t event) {
-  switch (event.type) {
-  case EncoderEvent_t::Release:
-    if (event.pressDurationMs >= LONG_PRESS_DURATION) {
-      // длинное нажатие
-      if (currentState.menu.current->parent == NULL) {
-        // Если это главное меню, то выходим
-        currentState.type = AppStateType_t::IDLE;
-        osThreadFlagsSet(taskDisplayHandle, 0x01);
-      } else {
-        switch (currentState.menu.current->type) {
-        case MenuItemType_t::Menu:
-        case MenuItemType_t::Settings:
-          if (!currentState.menu.isSelected) {
-            // Это подменю
-            // или не настройка которую редактируют в данный момент
-            // надо на уровень вверх
-            currentState.menu = {
-                .current = currentState.menu.current->parent,
-                .index = 0,
-                .isSelected = 0,
-            };
-            osThreadFlagsSet(taskDisplayHandle, 0x01);
-          }
-          break;
-        default:
-          break;
-        }
-      }
-    } else {
-      // Короткое нажатие
-      if (currentState.menu.current->size > 0) {
-        // Есть дочерние пункты, надо провалиться
-        currentState.menu = {
-            .current =
-                currentState.menu.current->children[currentState.menu.index],
-            .index = 0,
-            .isSelected = 0,
-        };
-        osThreadFlagsSet(taskDisplayHandle, 0x01);
-      } else if (currentState.menu.current->type == MenuItemType_t::Action) {
-        // Это пункт Action значит по одинарному клику возвращаемся назад
+/// @brief Обработка длтинного нажатия в меню
+/// @param event
+void handleStateMenuEncoder_LongPress(EncoderState_t event) {
+  if (currentState.menu.current->parent == NULL) {
+    // Если это главное меню, то выходим
+    currentState.type = AppStateType_t::IDLE;
+    osThreadFlagsSet(taskDisplayHandle, 0x01);
+  } else {
+    switch (currentState.menu.current->type) {
+    case MenuItemType_t::Menu:
+    case MenuItemType_t::Settings:
+      if (!currentState.menu.isSelected) {
+        // Это подменю
+        // или не настройка которую редактируют в данный момент
+        // надо на уровень вверх
         currentState.menu = {
             .current = currentState.menu.current->parent,
             .index = 0,
@@ -100,11 +74,72 @@ void handleStateMenuEncoder(EncoderState_t event) {
         };
         osThreadFlagsSet(taskDisplayHandle, 0x01);
       }
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+/// @brief Обработка короткого нажатия в меню
+/// @param event
+void handleStateMenuEncoder_ShortPress(EncoderState_t event) {
+  switch (currentState.menu.current->type) {
+  case MenuItemType_t::Menu:
+    // Мы находимся в списке подразделов
+    if (currentState.menu.current->size > 0) {
+      // смотрим на какой пункт наведен курсор
+      MenuItem_t *indexMenu =
+          currentState.menu.current->children[currentState.menu.index];
+      switch (indexMenu->type) {
+      case MenuItemType_t::Menu:
+      case MenuItemType_t::Action: {
+        // это подменю или действие, надло провалитья
+        currentState.menu = {
+            .current = indexMenu,
+            .index = 0,
+            .isSelected = 0,
+        };
+        osThreadFlagsSet(taskDisplayHandle, 0x01);
+      } break;
+      case MenuItemType_t::Settings: {
+        // Это настройка
+        if (currentState.menu.isSelected) {
+          // снимем выделение
+          currentState.menu.isSelected = 0;
+        } else {
+          // выделим
+          currentState.menu.isSelected = 1;
+        }
+        osThreadFlagsSet(taskDisplayHandle, 0x01);
+      } break;
+      }
     }
     break;
-  case EncoderEvent_t::Rotate:
-    if (currentState.menu.current->size > 0) {
-      // Это меню с дочерними пунктами, значит просто перемещаемся между ними
+  case MenuItemType_t::Action:
+    // Это пункт Action значит по одинарному клику возвращаемся назад
+    currentState.menu = {
+        .current = currentState.menu.current->parent,
+        .index = 0,
+        .isSelected = 0,
+    };
+    osThreadFlagsSet(taskDisplayHandle, 0x01);
+    break;
+  default:
+    break;
+  }
+}
+
+/// @brief Обработка вращения энкодера в меню
+/// @param event
+void handleStateMenuEncoder_Rotate(EncoderState_t event) {
+  switch (currentState.menu.current->type) {
+  case MenuItemType_t::Menu:
+    // Это подменю
+    if (currentState.menu.isSelected) {
+
+    } else {
+      // выделения нет - перемещаемся между пунктами
       int8_t index = currentState.menu.index + event.steps;
       if (index >= currentState.menu.current->size - 1) {
         index = currentState.menu.current->size - 1;
@@ -112,6 +147,37 @@ void handleStateMenuEncoder(EncoderState_t event) {
         index = 0;
       }
       currentState.menu.index = index;
+      osThreadFlagsSet(taskDisplayHandle, 0x01);
+    }
+    break;
+  default:
+    break;
+  }
+}
+
+/// @brief Обработка событий энкодера в меню
+/// @param event
+void handleStateMenuEncoder(EncoderState_t event) {
+  switch (event.type) {
+  case EncoderEvent_t::Release:
+    if (event.pressDurationMs >= LONG_PRESS_DURATION) {
+      handleStateMenuEncoder_LongPress(event);
+    } else {
+      handleStateMenuEncoder_ShortPress(event);
+    }
+    break;
+  case EncoderEvent_t::Rotate:
+    handleStateMenuEncoder_Rotate(event);
+    break;
+  case EncoderEvent_t::Press:
+    if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
+      currentState.hold = 0;
+      osThreadFlagsSet(taskDisplayHandle, 0x01);
+    }
+    break;
+  case EncoderEvent_t::Hold:
+    if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
+      currentState.hold = event.pressDurationMs;
       osThreadFlagsSet(taskDisplayHandle, 0x01);
     }
     break;

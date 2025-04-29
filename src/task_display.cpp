@@ -1,4 +1,5 @@
 #include "app.h"
+#include "utils.h"
 #include <oled.h>
 #include <stdio.h>
 
@@ -10,9 +11,9 @@
 OLED oled;
 char txt[128];
 
-size_t utf8_strlen(const char *str);
 void drowIdle();
 void drowMenu(MenuState_t state);
+void drowDrain();
 
 void TaskDisplay(void *argument) {
 
@@ -66,34 +67,55 @@ uint8_t getTopIndex(uint8_t index, uint8_t totalItems) {
 
 void drowMenu(MenuState_t state) {
   oled.clear();
-  if (state.current->size > 0) {
-    // Отрисуем дочерние пункты
-    uint8_t topIndex = getTopIndex(state.index, state.current->size);
-    oled.setFont(u8g2_font_unifont_t_cyrillic);
-    for (int i = 0; i < 4; i++) {
-      if (topIndex + i >= state.current->size) {
-        break;
-      }
-      int selected = state.index - topIndex;
-      const MenuItem *itemMenu = state.current->children[topIndex + i];
+  switch (currentState.menu.current->type) {
+  case MenuItemType_t::Menu:
+    if (state.current->size > 0) {
+      // Отрисуем дочерние пункты
+      uint8_t topIndex = getTopIndex(state.index, state.current->size);
+      oled.setFont(u8g2_font_unifont_t_cyrillic);
+      for (int i = 0; i < 4; i++) {
+        if (topIndex + i >= state.current->size) {
+          break;
+        }
+        int selected = state.index - topIndex;
+        const MenuItem *itemMenu = state.current->children[topIndex + i];
 
-      oled.setColor(1);
-      if (selected == i) {
-        oled.frame(0, (i * 16), WIDTH, 15);
-      }
+        oled.setColor(1);
+        if (selected == i) {
+          if (state.isSelected) {
+            oled.box(0, (i * 16), WIDTH, 15);
+            oled.setColor(0);
+          } else {
+            oled.frame(0, (i * 16), WIDTH, 15);
+          }
+        }
 
-      oled.print(2, 12 + (i * 16), itemMenu->name);
+        oled.print(2, 12 + (i * 16), itemMenu->name);
+      }
+      oled.update();
     }
+    break;
+  case MenuItemType_t::Action:
+    if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
+      drowDrain();
+    }
+    break;
+  default:
+    break;
   }
-  oled.update();
 }
 
-size_t utf8_strlen(const char *str) {
-  size_t len = 0;
-  while (*str) {
-    if ((*str & 0xC0) != 0x80)
-      len++; // Считаем только стартовые байты символов
-    str++;
-  }
-  return len;
+void drowDrain() {
+  oled.clear();
+  const char text[] = "ПРОКАЧКА";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+
+  float time = (float)currentState.hold / 1000;
+  int t_int = (int)time;
+  int t_frac = (int)(time * 10) % 10;
+  snprintf(txt, sizeof(txt), "%d.%dс", t_int, t_frac);
+  oled.print(HALF_SCREEN - utf8_strlen(txt) * HALF_TEXT, 50, txt);
+  oled.update();
 }
