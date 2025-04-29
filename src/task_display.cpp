@@ -14,6 +14,7 @@ char txt[128];
 void drowIdle();
 void drowMenu(MenuState_t state);
 void drowDrain();
+void drowCalibration();
 
 void TaskDisplay(void *argument) {
 
@@ -96,8 +97,11 @@ void drowMenu(MenuState_t state) {
     }
     break;
   case MenuItemType_t::Action:
-    if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
+    if (isStringEqueal(currentState.menu.current->name, MENU_DRAIN)) {
       drowDrain();
+    } else if (isStringEqueal(currentState.menu.current->name,
+                              MENU_CALIBRATION)) {
+      drowCalibration();
     }
     break;
   default:
@@ -114,8 +118,24 @@ void drowDrain() {
 
   float time = (float)currentState.hold / 1000;
   int t_int = (int)time;
-  int t_frac = (int)(time * 10) % 10;
-  snprintf(txt, sizeof(txt), "%d.%dс", t_int, t_frac);
-  oled.print(HALF_SCREEN - utf8_strlen(txt) * HALF_TEXT, 50, txt);
+  // int t_frac = (int)(time * 10) % 10;
+  int t_frac = (int)(time * 100) % 100;
+  snprintf(txt, sizeof(txt), "%d.%02dс", t_int, t_frac);
+  oled.print(HALF_SCREEN - utf8_strlen(txt) * HALF_TEXT, 55, txt);
+  oled.update();
+}
+
+void drowCalibration() {
+  oled.clear();
+  const char text[] = "КАЛИБРОВКА";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+
+  float time = (float)currentState.hold / 1000;
+  int t_int = (int)time;
+  int t_frac = (int)(time * 100) % 100;
+  snprintf(txt, sizeof(txt), "%d.%02dс", t_int, t_frac);
+  oled.print(HALF_SCREEN - utf8_strlen(txt) * HALF_TEXT, 55, txt);
   oled.update();
 }

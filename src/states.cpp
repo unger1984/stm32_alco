@@ -75,6 +75,24 @@ void handleStateMenuEncoder_LongPress(EncoderState_t event) {
         osThreadFlagsSet(taskDisplayHandle, 0x01);
       }
       break;
+    case MenuItemType_t::Action:
+      if (isStringEqueal(currentState.menu.current->name, MENU_DRAIN)) {
+        // отпустили после прокачки
+        // выключить помпу!
+        uint8_t pump = 0;
+        osMessageQueuePut(queuePumpHandle, &pump, 0, osWaitForever);
+        currentState.hold = 0;
+        osThreadFlagsSet(taskDisplayHandle, 0x01);
+      } else if (isStringEqueal(currentState.menu.current->name,
+                                MENU_CALIBRATION)) {
+        // отпустили после калибровки
+        // выключить помпу!
+        uint8_t pump = 0;
+        osMessageQueuePut(queuePumpHandle, &pump, 0, osWaitForever);
+        currentState.hold = event.pressDurationMs;
+        osThreadFlagsSet(taskDisplayHandle, 0x01);
+      }
+      break;
     default:
       break;
     }
@@ -100,6 +118,17 @@ void handleStateMenuEncoder_ShortPress(EncoderState_t event) {
             .index = 0,
             .isSelected = 0,
         };
+        if (isStringEqueal(indexMenu->name, MENU_DRAIN)) {
+          // Это мы вошли в прокачку, значит надо повернуть серво
+          currentState.hold = 0;
+          uint8_t angle = 90;
+          osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+        } else if (isStringEqueal(indexMenu->name, MENU_CALIBRATION)) {
+          // Это мы вошли в калибровку, значит надо повернуть серво
+          currentState.hold = 0;
+          uint8_t angle = 90;
+          osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+        }
         osThreadFlagsSet(taskDisplayHandle, 0x01);
       } break;
       case MenuItemType_t::Settings: {
@@ -118,6 +147,18 @@ void handleStateMenuEncoder_ShortPress(EncoderState_t event) {
     break;
   case MenuItemType_t::Action:
     // Это пункт Action значит по одинарному клику возвращаемся назад
+    if (isStringEqueal(currentState.menu.current->name, MENU_DRAIN)) {
+      // Это мы выходим из прокачки, значит надо повернуть серво
+      currentState.hold = 0;
+      uint8_t angle = 0;
+      osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+    } else if (isStringEqueal(currentState.menu.current->name,
+                              MENU_CALIBRATION)) {
+      // Это мы выходим из калибровки, значит надо повернуть серво
+      currentState.hold = 0;
+      uint8_t angle = 0;
+      osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+    }
     currentState.menu = {
         .current = currentState.menu.current->parent,
         .index = 0,
@@ -170,13 +211,19 @@ void handleStateMenuEncoder(EncoderState_t event) {
     handleStateMenuEncoder_Rotate(event);
     break;
   case EncoderEvent_t::Press:
-    if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
-      currentState.hold = 0;
-      osThreadFlagsSet(taskDisplayHandle, 0x01);
-    }
+    // if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
+    //   currentState.hold = 0;
+    //   osThreadFlagsSet(taskDisplayHandle, 0x01);
+    // }
     break;
   case EncoderEvent_t::Hold:
-    if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
+    if (isStringEqueal(currentState.menu.current->name, MENU_DRAIN) ||
+        isStringEqueal(currentState.menu.current->name, MENU_CALIBRATION)) {
+      // Если помпа не включена - включить
+      if (!currentState.pump) {
+        uint8_t pump = 1;
+        osMessageQueuePut(queuePumpHandle, &pump, 0, osWaitForever);
+      }
       currentState.hold = event.pressDurationMs;
       osThreadFlagsSet(taskDisplayHandle, 0x01);
     }

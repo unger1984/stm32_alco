@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define MENU_DRAIN "Прокачка"
+#define MENU_CALIBRATION "Калибровка"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

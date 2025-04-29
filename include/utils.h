@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define millis() ((osKernelGetTickCount() * 1000U) / osKernelGetTickFreq())
+
 #ifdef __cplusplus
 extern "C" {
 #endif

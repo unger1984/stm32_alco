@@ -10,8 +10,6 @@
 extern "C" {
 #endif
 
-#define millis() ((osKernelGetTickCount() * 1000U) / osKernelGetTickFreq())
-
 typedef enum {
   None,    // нет событий
   Rotate,  // вращение

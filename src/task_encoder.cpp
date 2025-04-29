@@ -1,9 +1,10 @@
 #include "app.h"
 #include "tim.h"
+#include "utils.h"
 #include <cmsis_os2.h>
 #include <stdio.h>
 
-#define MIN_HOLD_DURATION 50 // минимальное время после считается удержанно
+#define MIN_HOLD_DURATION 500 // минимальное время после считается удержанно
 
 void TaskEncoder(void *argument) {
   uint16_t lastCounter_;
