@@ -1,7 +1,6 @@
 #include "Menu.h"
 #include "AppSettings.h"
 #include "utils.h"
-// #include "settings.h"
 
 const char *MenuItem::getName() const { return name; };
 MenuItemType MenuItem::getType() const { return type; };
