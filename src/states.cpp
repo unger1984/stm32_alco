@@ -136,9 +136,17 @@ void handleStateMenuEncoder_ShortPress(EncoderState_t event) {
         if (currentState.menu.isSelected) {
           // снимем выделение
           currentState.menu.isSelected = 0;
+          if (isStringEqueal(currentState.menu.current->name, MENU_SERVO)) {
+            uint8_t angle = 0;
+            osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+          }
         } else {
           // выделим
           currentState.menu.isSelected = 1;
+          if (isStringEqueal(currentState.menu.current->name, MENU_SERVO)) {
+            uint8_t angle = *(uint8_t *)indexMenu->settingsPtr;
+            osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+          }
         }
         osThreadFlagsSet(taskDisplayHandle, 0x01);
       } break;
@@ -188,6 +196,8 @@ void handleStateMenuEncoder_Rotate(EncoderState_t event) {
           newval = 180;
         if (newval < 0)
           newval = 0;
+        uint8_t angle = newval;
+        osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
       } else if (isStringEqueal(currentState.menu.current->name, MENU_DOSAGE)) {
         if (newval > 100)
           newval = 100;
