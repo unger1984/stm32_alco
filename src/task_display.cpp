@@ -23,10 +23,10 @@ void TaskDisplay(void *argument) {
     uint32_t flags = osThreadFlagsWait(0x01, osFlagsWaitAny, osWaitForever);
     if (flags & 0x01) {
       switch (currentState.type) {
-      case AppStateType_t::Idle:
+      case AppStateType_t::IDLE:
         drowIdle();
         break;
-      case AppStateType_t::Menu:
+      case AppStateType_t::MENU:
         drowMenu(currentState.menu);
         break;
       default:

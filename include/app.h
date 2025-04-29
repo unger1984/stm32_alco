@@ -35,10 +35,10 @@ typedef enum {
 } ManagerEventSource_t;
 
 /// @brief Глобальное Тип состояния
-typedef enum {
-  Idle = 0,
-  Work,
-  Menu,
+typedef enum AppStateType {
+  IDLE = 0,
+  WORK,
+  MENU,
 } AppStateType_t;
 
 typedef struct {

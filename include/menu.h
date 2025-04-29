@@ -8,8 +8,15 @@
 extern "C" {
 #endif
 
+typedef enum MenuItemType {
+  Menu = 0,
+  Action,
+  Settings,
+} MenuItemType_t;
+
 typedef struct MenuItem {
   const char *name;
+  MenuItemType_t type;
   struct MenuItem *parent;
   struct MenuItem **children;
   uint8_t size;

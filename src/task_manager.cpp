@@ -8,7 +8,7 @@ AppState currentState;
 void TaskManager(void *argument) {
 
   currentState = {
-      .type = Idle,
+      .type = IDLE,
       .servo = 0,
       .pump = 0,
       .menu =
@@ -25,14 +25,14 @@ void TaskManager(void *argument) {
     if (status == osStatus_t::osOK) {
 
       switch (currentState.type) {
-      case AppStateType_t::Idle:
+      case AppStateType_t::IDLE:
         handleStateIdle(event);
         break;
-      case AppStateType_t::Work:
+      case AppStateType_t::WORK:
         handleStateWork(event);
         break;
 
-      case AppStateType_t::Menu:
+      case AppStateType_t::MENU:
         handleStateMenu(event);
         break;
       default:
