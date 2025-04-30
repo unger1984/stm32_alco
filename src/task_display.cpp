@@ -11,6 +11,7 @@
 OLED oled;
 char txt[128];
 
+void drowLoading();
 void drowIdle();
 void drowMenu(MenuManager *menu);
 void drowDrain();
@@ -25,6 +26,9 @@ void TaskDisplay(void *argument) {
     uint32_t flags = osThreadFlagsWait(0x01, osFlagsWaitAny, osWaitForever);
     if (flags & 0x01) {
       switch (app.getState()->getType()) {
+      case AppStateType::LOADING:
+        drowLoading();
+        break;
       case AppStateType::IDLE:
         drowIdle();
         break;
@@ -38,7 +42,7 @@ void TaskDisplay(void *argument) {
   }
 }
 
-void drowIdle() {
+void drowLoading() {
   oled.clearAll();
   const char text[] = "НАЛИВАТОР";
   const char ver[] = "v1.0";
@@ -47,6 +51,20 @@ void drowIdle() {
   oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
   snprintf(txt, sizeof(txt), ver);
   oled.print(HALF_SCREEN - utf8_strlen(ver) * HALF_TEXT, 50, txt);
+  oled.update();
+}
+
+void drowIdle() {
+  oled.clearAll();
+  const char text[] = "Налить?";
+  const char ver[] = "нажмите кнопку";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+
+  oled.setFont(u8g2_font_unifont_t_cyrillic);
+  snprintf(txt, sizeof(txt), ver);
+  oled.print(HALF_SCREEN - utf8_strlen(ver) * HALF_TEXT + 10, 50, txt);
   oled.update();
 }
 
@@ -69,7 +87,7 @@ uint8_t getTopIndex(uint8_t index, uint8_t totalItems) {
 void drowMenu(MenuManager *menu) {
   oled.clear();
   switch (menu->getCurrent()->getType()) {
-  case MenuItemType::Menu: {
+  case MenuItemType::MENU: {
     uint8_t size = menu->getCurrent()->getSize();
     uint8_t index = menu->getIndex();
     if (size > 0) {
@@ -96,7 +114,7 @@ void drowMenu(MenuManager *menu) {
 
         oled.print(2, 12 + (i * 16), itemMenu->getName());
 
-        if (itemMenu->getType() == MenuItemType::Edit) {
+        if (itemMenu->getType() == MenuItemType::EDIT) {
           snprintf(txt, sizeof(txt), "%d", *(uint8_t *)itemMenu->getParam());
           oled.print(WIDTH - 2 - utf8_strlen(txt) * 7, 12 + (i * 16), txt);
         }
@@ -104,7 +122,7 @@ void drowMenu(MenuManager *menu) {
       oled.update();
     }
   } break;
-  case MenuItemType::Action:
+  case MenuItemType::ACTION:
     if (app.getMenu()->getCurrent()->isEqual(MENU_DRAIN)) {
       drowDrain();
     } else if (app.getMenu()->getCurrent()->isEqual(MENU_CALIBRATION)) {

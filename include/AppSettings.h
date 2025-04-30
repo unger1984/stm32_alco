@@ -24,6 +24,7 @@ public:
   uint32_t calibration = 0; // время налива стопки
   GlassAngles angles;
   GlassDoses doses;
+  uint8_t isDebug = false;
 
   AppSettings() = default;
 };

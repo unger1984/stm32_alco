@@ -91,10 +91,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART2_UART_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_I2C1_Init();
+  MX_TIM2_Init();
+  MX_TIM10_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -168,7 +170,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 int _write(int file, char *pStr, int len) {
   uint32_t timeout = len * 10000 / 115200 + 5; // в мс (+5 мс запас)
-  HAL_UART_Transmit(&huart2, (uint8_t *)pStr, len, timeout);
+  HAL_UART_Transmit(&huart6, (uint8_t *)pStr, len, timeout);
   return len;
 }
 /* USER CODE END 4 */

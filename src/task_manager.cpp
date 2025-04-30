@@ -4,7 +4,7 @@
 
 void TaskManager(void *argument) {
 
-  app.switchState(&appStateIdle);
+  app.switchState(&appStateLoading);
 
   // currentState = {
   //     .type = IDLE,

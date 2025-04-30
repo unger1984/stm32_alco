@@ -28,6 +28,14 @@ public:
   virtual ~AppStateBase() = default;
 };
 
+class AppStateLoading : public AppStateBase {
+public:
+  AppStateType getType() const;
+  void onEnter();
+  void onExit();
+  void onEvent(const ManagerEvent &event);
+};
+
 class AppStateIdle : public AppStateBase {
 public:
   AppStateType getType() const;
@@ -50,6 +58,7 @@ private:
   void onEncoderEvent(const EncoderState &state);
 };
 
+extern AppStateLoading appStateLoading;
 extern AppStateIdle appStateIdle;
 extern AppStateMenu appStateMenu;
 

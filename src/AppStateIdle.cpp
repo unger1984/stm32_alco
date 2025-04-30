@@ -26,7 +26,7 @@ void AppStateIdle::onEvent(const ManagerEvent &event) {
 }
 
 void AppStateIdle::onEncoderEvent(const EncoderState &state) {
-  if (state.type == EncoderEventType::Release) {
+  if (state.type == EncoderEventType::RELEASE) {
     if (state.pressDurationMs > LONG_PRESS_DURATION) {
       // это было долгое нажатие, надо провалиться в меню
       app.switchState(&appStateMenu);

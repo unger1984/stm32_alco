@@ -24,11 +24,11 @@ void TaskServo(void *argument);
 void TaskDisplay(void *argument);
 
 typedef enum EncoderEventType {
-  None = 0, // нет событий
-  Rotate,   // вращение
-  Press,    // Начало нажатия кнопки
-  Release,  // Отпускание кнопки
-  Hold,     // Удержание кнопки
+  NONE = 0, // нет событий
+  ROTATE,   // вращение
+  PRESS,    // Начало нажатия кнопки
+  RELEASE,  // Отпускание кнопки
+  HOLD,     // Удержание кнопки
 } EncoderEventType;
 
 typedef struct EncoderState {
@@ -43,6 +43,7 @@ typedef enum ManagerEventSource {
   PUMP,
   SERVO,
   GLASS,
+  WORKER,
 } ManagerEventSource;
 
 typedef struct ManagerEvent {

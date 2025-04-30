@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "app.h"
+#include "app_shared.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -79,7 +79,7 @@ const osThreadAttr_t taskServo_attributes = {
 osThreadId_t taskDisplayHandle;
 const osThreadAttr_t taskDisplay_attributes = {
   .name = "taskDisplay",
-  .stack_size = 128 * 4,
+  .stack_size = 254 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for taskGlassLeds */
@@ -133,6 +133,19 @@ void StartTaskGlassBtns(void *argument);
 void StartTaskManager(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* Hook prototypes */
+void configureTimerForRunTimeStats(void);
+unsigned long getRunTimeCounterValue(void);
+
+/* USER CODE BEGIN 1 */
+/* Functions needed when configGENERATE_RUN_TIME_STATS is on */
+extern TIM_HandleTypeDef htim2;
+
+void configureTimerForRunTimeStats(void) { HAL_TIM_Base_Start(&htim2); }
+
+uint32_t getRunTimeCounterValue(void) { return __HAL_TIM_GET_COUNTER(&htim2); }
+/* USER CODE END 1 */
 
 /**
   * @brief  FreeRTOS initialization

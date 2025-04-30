@@ -1,5 +1,6 @@
 #include "MenuManager.h"
 #include "AppContext.h"
+#include "debug.h"
 #include "utils.h"
 
 MenuItem *MenuManager::getCurrent() { return current; };
@@ -13,14 +14,14 @@ void MenuManager::changeCurrent(MenuItem *item) {
 
 void MenuManager::onClick() {
   switch (current->getType()) {
-  case MenuItemType::Menu:
+  case MenuItemType::MENU:
     // Мы находимся в списке подразделов
     if (current->getSize() > 0) {
       // смотрим на какой пункт наведен курсор
       MenuItem *indexMenu = current->getChildrent()[index];
       switch (indexMenu->getType()) {
-      case MenuItemType::Menu:
-      case MenuItemType::Action:
+      case MenuItemType::MENU:
+      case MenuItemType::ACTION:
         // это подменю или действие, надло провалитья
         changeCurrent(indexMenu);
         if (indexMenu->isEqual(MENU_DRAIN)) {
@@ -34,13 +35,16 @@ void MenuManager::onClick() {
         }
         app.updateDisplay();
         break;
-      case MenuItemType::Edit:
+      case MenuItemType::EDIT:
         // Это настройка
         if (selected) {
           // снимем выделение
           selected = false;
           if (app.getMenu()->getCurrent()->isEqual(MENU_SERVO)) {
             app.updateServo(0);
+          } else if (indexMenu->isEqual(MENU_DEBUG)) {
+            // включим или выключи отладку
+            handleDebug(app.getSettings()->isDebug);
           }
         } else {
           // выделим
@@ -54,7 +58,7 @@ void MenuManager::onClick() {
       }
     }
     break;
-  case MenuItemType::Action:
+  case MenuItemType::ACTION:
     // Это пункт Action значит по одинарному клику возвращаемся назад
     if (current->isEqual(MENU_DRAIN)) {
       // Это мы выходим из прокачки, значит надо повернуть серво
@@ -80,8 +84,8 @@ void MenuManager::onLongPress(uint32_t duration) {
     app.switchState(&appStateIdle);
   } else {
     switch (current->getType()) {
-    case MenuItemType::Menu:
-    case MenuItemType::Edit:
+    case MenuItemType::MENU:
+    case MenuItemType::EDIT:
       if (!selected) {
         // Это подменю
         // или не настройка которую редактируют в данный момент
@@ -90,7 +94,7 @@ void MenuManager::onLongPress(uint32_t duration) {
         app.updateDisplay();
       }
       break;
-    case MenuItemType::Action:
+    case MenuItemType::ACTION:
       if (current->isEqual(MENU_DRAIN)) {
         // отпустили после прокачки
         // выключить помпу!
@@ -124,7 +128,7 @@ void MenuManager::onHold(uint32_t duration) {
 
 void MenuManager::onRotate(int steps, bool pressed) {
   switch (current->getType()) {
-  case MenuItemType::Menu:
+  case MenuItemType::MENU:
     // Это подменю
     if (selected) {
       MenuItem *itemMenu = current->getChildrent()[index];
@@ -135,6 +139,8 @@ void MenuManager::onRotate(int steps, bool pressed) {
         app.updateServo(newval);
       } else if (current->isEqual(MENU_DOSAGE)) {
         newval = clamp(newval, 0, 100);
+      } else if (itemMenu->isEqual(MENU_DEBUG)) {
+        newval = clamp<int8_t>(newval, 0, 1);
       }
       *(uint8_t *)current->getChildrent()[index]->getParam() = newval;
       app.updateDisplay();

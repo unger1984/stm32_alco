@@ -6,11 +6,12 @@
 #define MENU_DOSAGE "Дозы по стопкам"
 #define MENU_SERVO "Углы серво"
 #define MENU_CALIBRATION "Калибровка"
+#define MENU_DEBUG "Отладка"
 
 #ifndef _MENU_H
 #define _MENU_H
 
-enum class MenuItemType { Menu = 0, Action, Edit };
+enum class MenuItemType { MENU = 0, ACTION, EDIT };
 
 class MenuItem {
 public:
@@ -42,5 +43,6 @@ extern MenuItem menuDrain;
 extern MenuItem menuDosage;
 extern MenuItem menuServo;
 extern MenuItem menuCalibration;
+extern MenuItem menuDebug;
 
 #endif /* _MENU_H */

@@ -18,24 +18,24 @@ void TaskEncoder(void *argument) {
 
   for (;;) {
     EncoderState state = EncoderState{};
-    state.type = EncoderEventType::None;
+    state.type = EncoderEventType::NONE;
 
     GPIO_PinState btn = HAL_GPIO_ReadPin(ENC_BTN_GPIO_Port, ENC_BTN_Pin);
     if (lastButtonState_ == GPIO_PIN_SET && btn == GPIO_PIN_RESET) {
       // Начало нажатия
       buttonPressTime_ = millis();
-      state.type = EncoderEventType::Press;
+      state.type = EncoderEventType::PRESS;
       state.pressDurationMs = 0;
       state.press = 1;
     } else if (lastButtonState_ == GPIO_PIN_RESET && btn == GPIO_PIN_SET) {
       // Отпустили кнопку
       state.pressDurationMs = millis() - buttonPressTime_;
-      state.type = EncoderEventType::Release;
+      state.type = EncoderEventType::RELEASE;
       state.press = 0;
     } else if (lastButtonState_ == GPIO_PIN_RESET && btn == GPIO_PIN_RESET) {
       // Держать кнопку
       if (millis() - buttonPressTime_ >= MIN_HOLD_DURATION) {
-        state.type = EncoderEventType::Hold;
+        state.type = EncoderEventType::HOLD;
         state.pressDurationMs = millis() - buttonPressTime_;
         state.press = 1;
       }
@@ -45,13 +45,13 @@ void TaskEncoder(void *argument) {
     // Проверим было ли вращение
     uint16_t current = __HAL_TIM_GET_COUNTER(&htim4) >> 1;
     if (lastCounter_ != current) {
-      state.type = EncoderEventType::Rotate;
+      state.type = EncoderEventType::ROTATE;
       state.steps = (current < lastCounter_) ? 1 : -1;
       lastCounter_ = current;
       state.press = lastButtonState_ == GPIO_PIN_RESET ? 1 : 0;
     }
 
-    if (state.type != EncoderEventType::None) {
+    if (state.type != EncoderEventType::NONE) {
       //   printf("Event: %d Steps: %d Pressed %d Durations: %ul\r\n",
       //   state.type,
       //          state.steps, state.press, state.pressDurationMs);
