@@ -31,7 +31,7 @@ void AppContext::setHold(uint32_t value) { hold = value; }
 
 AppStateBase *AppContext::getState() const { return currentState; }
 
-MenuState *AppContext::getMenu() const { return menu; };
+MenuManager *AppContext::getMenu() const { return menu; };
 
 AppSettings *AppContext::getSettings() { return settings; };
 

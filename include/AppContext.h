@@ -5,7 +5,8 @@
 
 #include "AppSettings.h"
 #include "AppState.h"
-#include "Menu.h"
+#include "MenuItem.h"
+#include "MenuManager.h"
 #include "app_shared.h"
 #include <cmsis_os.h>
 
@@ -35,14 +36,14 @@ public:
   AppSettings *getSettings();
 
   AppStateBase *getState() const;
-  MenuState *getMenu() const;
+  MenuManager *getMenu() const;
 
 private:
   AppStateBase *currentState = nullptr;
   uint8_t servo;
   bool pump;
   uint32_t hold;
-  MenuState *menu = &menuState;
+  MenuManager *menu = &appManuManager;
   AppSettings *settings = &appSettings;
 };
 

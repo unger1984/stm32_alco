@@ -8,7 +8,6 @@ void AppStateMenu::onEnter() {
   // Остановим насос
   app.updatePump(0);
   // Обновим экран
-  app.getMenu()->setCurrent(&menuMain);
   app.updateDisplay();
 }
 void AppStateMenu::onExit() {}
@@ -24,13 +23,13 @@ void AppStateMenu::onEncoderEvent(const EncoderState &state) {
   switch (state.type) {
   case EncoderEventType::Release:
     if (state.pressDurationMs >= LONG_PRESS_DURATION) {
-      this->onLongPress(state);
+      app.getMenu()->onLongPress(state.pressDurationMs);
     } else {
-      this->onClick(state);
+      app.getMenu()->onClick();
     }
     break;
   case EncoderEventType::Rotate:
-    this->onRotate(state);
+    app.getMenu()->onRotate(state.steps, state.press);
     break;
   case EncoderEventType::Press:
     // if (isStringEqueal(currentState.menu.current->name, "Прокачка")) {
@@ -39,170 +38,11 @@ void AppStateMenu::onEncoderEvent(const EncoderState &state) {
     // }
     break;
   case EncoderEventType::Hold:
-    this->onHold(state);
+    app.getMenu()->onHold(state.pressDurationMs);
     break;
   default:
     break;
   }
 }
-
-void AppStateMenu::onLongPress(const EncoderState &state) {
-  if (app.getMenu()->getCurrent()->getParent() == nullptr) {
-    // Если это главное меню, то выходим
-    app.switchState(&appStateIdle);
-  } else {
-    switch (app.getMenu()->getCurrent()->getType()) {
-    case MenuItemType::Menu:
-    case MenuItemType::Edit:
-      if (!app.getMenu()->isSelected()) {
-        // Это подменю
-        // или не настройка которую редактируют в данный момент
-        // надо на уровень вверх
-        app.getMenu()->setCurrent(app.getMenu()->getCurrent()->getParent());
-        app.updateDisplay();
-      }
-      break;
-    case MenuItemType::Action:
-      if (app.getMenu()->getCurrent()->isEqual(MENU_DRAIN)) {
-        // отпустили после прокачки
-        // выключить помпу!
-        app.updatePump(false);
-        app.setHold(0);
-        app.updateDisplay();
-      } else if (app.getMenu()->getCurrent()->isEqual(MENU_CALIBRATION)) {
-        // отпустили после калибровки
-        // выключить помпу!
-        app.updatePump(false);
-        app.setHold(state.pressDurationMs);
-        app.updateDisplay();
-      }
-      break;
-    default:
-      break;
-    }
-  }
-};
-
-void AppStateMenu::onClick(const EncoderState &state) {
-  switch (app.getMenu()->getCurrent()->getType()) {
-  case MenuItemType::Menu:
-    // Мы находимся в списке подразделов
-    if (app.getMenu()->getCurrent()->getSize() > 0) {
-      // смотрим на какой пункт наведен курсор
-      MenuItem *indexMenu = app.getMenu()
-                                ->getCurrent()
-                                ->getChildrent()[app.getMenu()->getIndex()];
-      switch (indexMenu->getType()) {
-      case MenuItemType::Menu:
-      case MenuItemType::Action:
-        // это подменю или действие, надло провалитья
-        app.getMenu()->setCurrent(indexMenu);
-        if (indexMenu->isEqual(MENU_DRAIN)) {
-          // Это мы вошли в прокачку, значит надо повернуть серво
-          app.setHold(0);
-          app.updateServo(90);
-        } else if (indexMenu->isEqual(MENU_CALIBRATION)) {
-          // Это мы вошли в калибровку, значит надо повернуть серво
-          app.setHold(app.getSettings()->calibration);
-          app.updateServo(90);
-        }
-        app.updateDisplay();
-        break;
-      case MenuItemType::Edit:
-        // Это настройка
-        if (app.getMenu()->isSelected()) {
-          // снимем выделение
-          app.getMenu()->setSelected(false);
-          if (app.getMenu()->getCurrent()->isEqual(MENU_SERVO)) {
-            app.updateServo(0);
-          }
-        } else {
-          // выделим
-          app.getMenu()->setSelected(true);
-          if (app.getMenu()->getCurrent()->isEqual(MENU_SERVO)) {
-            app.updateServo(*(uint8_t *)indexMenu->getParam());
-          }
-        }
-        osThreadFlagsSet(taskDisplayHandle, 0x01);
-        break;
-      }
-    }
-    break;
-  case MenuItemType::Action:
-    // Это пункт Action значит по одинарному клику возвращаемся назад
-    if (app.getMenu()->getCurrent()->isEqual(MENU_DRAIN)) {
-      // Это мы выходим из прокачки, значит надо повернуть серво
-      app.setHold(0);
-      app.updateServo(0);
-    } else if (app.getMenu()->getCurrent()->isEqual(MENU_CALIBRATION)) {
-      // Это мы выходим из калибровки, значит надо повернуть серво
-      app.getSettings()->calibration = app.getHold();
-      app.setHold(0);
-      app.updateServo(0);
-    }
-    app.getMenu()->setCurrent(app.getMenu()->getCurrent()->getParent());
-    app.updateDisplay();
-    break;
-  default:
-    break;
-  }
-};
-
-void AppStateMenu::onHold(const EncoderState &state) {
-  if (app.getMenu()->getCurrent()->isEqual(MENU_DRAIN) ||
-      app.getMenu()->getCurrent()->isEqual(MENU_CALIBRATION)) {
-    // Если помпа не включена - включить
-    if (!app.isPump()) {
-      app.updatePump(1);
-    }
-    app.setHold(state.pressDurationMs);
-    app.updateDisplay();
-  }
-};
-
-void AppStateMenu::onRotate(const EncoderState &state) {
-  switch (app.getMenu()->getCurrent()->getType()) {
-  case MenuItemType::Menu:
-    // Это подменю
-    if (app.getMenu()->isSelected()) {
-      MenuItem *itemMenu = app.getMenu()
-                               ->getCurrent()
-                               ->getChildrent()[app.getMenu()->getIndex()];
-      uint8_t val = *(uint8_t *)itemMenu->getParam();
-      int newval = val + state.steps * (state.press ? 10 : 1);
-      if (app.getMenu()->getCurrent()->isEqual(MENU_SERVO)) {
-        if (newval > 180)
-          newval = 180;
-        if (newval < 0)
-          newval = 0;
-        app.updateServo(newval);
-      } else if (app.getMenu()->getCurrent()->isEqual(MENU_DOSAGE)) {
-        if (newval > 100)
-          newval = 100;
-        if (newval < 0)
-          newval = 0;
-      }
-      *(uint8_t *)app.getMenu()
-           ->getCurrent()
-           ->getChildrent()[app.getMenu()->getIndex()]
-           ->getParam() = newval;
-      app.updateDisplay();
-    } else {
-      // выделения нет - перемещаемся между пунктами
-      uint8_t size = app.getMenu()->getCurrent()->getSize();
-      int8_t index = app.getMenu()->getIndex() + state.steps;
-      if (index >= size - 1) {
-        index = size - 1;
-      } else if (index < 0) {
-        index = 0;
-      }
-      app.getMenu()->setIndex(index);
-      app.updateDisplay();
-    }
-    break;
-  default:
-    break;
-  }
-};
 
 AppStateMenu appStateMenu;

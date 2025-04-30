@@ -37,27 +37,6 @@ private:
   void *settingsPtr = nullptr;
 };
 
-class MenuState {
-public:
-  MenuState(MenuItem *current = nullptr, uint8_t index = 0,
-            bool isSelected = false)
-      : current(current), index(index), selected(isSelected) {}
-
-  void setCurrent(MenuItem *menu);
-  MenuItem *getCurrent();
-  uint8_t getIndex();
-  void setIndex(uint8_t value);
-  bool isSelected();
-  void setSelected(bool value);
-
-private:
-  MenuItem *current = nullptr;
-  uint8_t index = 0;
-  bool selected = false;
-};
-
-extern MenuState menuState;
-
 extern MenuItem menuMain;
 extern MenuItem menuDrain;
 extern MenuItem menuDosage;

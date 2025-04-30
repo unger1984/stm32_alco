@@ -1,13 +1,8 @@
-#ifndef _UTILS_H
-#define _UTILS_H
+#pragma once
 
 #include <stdint.h>
 
 #define millis() ((osKernelGetTickCount() * 1000U) / osKernelGetTickFreq())
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /// @brief  Сравниваем стоки
 /// @param a
@@ -19,8 +14,10 @@ uint8_t isStringEqual(const char *a, const char *b);
 
 uint32_t utf8_strlen(const char *str);
 
-#ifdef __cplusplus
+template <typename T> T clamp(T val, T minVal, T maxVal) {
+  return (val < minVal) ? minVal : (val > maxVal) ? maxVal : val;
 }
-#endif
 
-#endif /* _UTILS_H */
+template <typename T> constexpr const T &max(const T &a, const T &b) {
+  return (a < b) ? b : a;
+}

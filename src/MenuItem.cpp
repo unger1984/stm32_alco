@@ -1,4 +1,4 @@
-#include "Menu.h"
+#include "MenuItem.h"
 #include "AppSettings.h"
 #include "utils.h"
 
@@ -66,17 +66,3 @@ MenuItem menuServo(MENU_SERVO, MenuItemType::Menu, &menuMain, servoChildren, 6);
 
 MenuItem menuCalibration(MENU_CALIBRATION, MenuItemType::Action, &menuMain,
                          nullptr, 0);
-
-void MenuState::setCurrent(MenuItem *menu) {
-  current = menu;
-  index = 0;
-  selected = false;
-};
-
-MenuItem *MenuState::getCurrent() { return current; };
-uint8_t MenuState::getIndex() { return index; };
-void MenuState::setIndex(uint8_t value) { index = value; };
-bool MenuState::isSelected() { return selected; }
-void MenuState::setSelected(bool value) { selected = value; };
-
-MenuState menuState(&menuMain, 0, 0);

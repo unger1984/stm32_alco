@@ -48,10 +48,6 @@ public:
 
 private:
   void onEncoderEvent(const EncoderState &state);
-  void onLongPress(const EncoderState &state);
-  void onClick(const EncoderState &state);
-  void onHold(const EncoderState &state);
-  void onRotate(const EncoderState &state);
 };
 
 extern AppStateIdle appStateIdle;

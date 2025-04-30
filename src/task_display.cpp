@@ -12,7 +12,7 @@ OLED oled;
 char txt[128];
 
 void drowIdle();
-void drowMenu(MenuState *state);
+void drowMenu(MenuManager *menu);
 void drowDrain();
 void drowCalibration();
 
@@ -66,15 +66,15 @@ uint8_t getTopIndex(uint8_t index, uint8_t totalItems) {
   }
 }
 
-void drowMenu(MenuState *state) {
+void drowMenu(MenuManager *menu) {
   oled.clear();
-  switch (state->getCurrent()->getType()) {
+  switch (menu->getCurrent()->getType()) {
   case MenuItemType::Menu: {
-    uint8_t size = state->getCurrent()->getSize();
-    uint8_t index = state->getIndex();
+    uint8_t size = menu->getCurrent()->getSize();
+    uint8_t index = menu->getIndex();
     if (size > 0) {
       // Отрисуем дочерние пункты
-      uint8_t topIndex = getTopIndex(state->getIndex(), size);
+      uint8_t topIndex = getTopIndex(menu->getIndex(), size);
       oled.setFont(u8g2_font_unifont_t_cyrillic);
       for (int i = 0; i < 4; i++) {
         if (topIndex + i >= size) {
@@ -82,11 +82,11 @@ void drowMenu(MenuState *state) {
         }
         int selected = index - topIndex;
         const MenuItem *itemMenu =
-            state->getCurrent()->getChildrent()[topIndex + i];
+            menu->getCurrent()->getChildrent()[topIndex + i];
 
         oled.setColor(1);
         if (selected == i) {
-          if (state->isSelected()) {
+          if (menu->isSelected()) {
             oled.box(0, (i * 16), WIDTH, 15);
             oled.setColor(0);
           } else {
