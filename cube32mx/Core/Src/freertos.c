@@ -52,7 +52,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for taskEncoder */
 osThreadId_t taskEncoderHandle;
@@ -79,7 +79,7 @@ const osThreadAttr_t taskServo_attributes = {
 osThreadId_t taskDisplayHandle;
 const osThreadAttr_t taskDisplay_attributes = {
   .name = "taskDisplay",
-  .stack_size = 254 * 4,
+  .stack_size = 158 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for taskGlassLeds */
@@ -103,6 +103,13 @@ const osThreadAttr_t taskManager_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for taskWorker */
+osThreadId_t taskWorkerHandle;
+const osThreadAttr_t taskWorker_attributes = {
+  .name = "taskWorker",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for queueManager */
 osMessageQueueId_t queueManagerHandle;
 const osMessageQueueAttr_t queueManager_attributes = {
@@ -118,6 +125,11 @@ osMessageQueueId_t queueServoHandle;
 const osMessageQueueAttr_t queueServo_attributes = {
   .name = "queueServo"
 };
+/* Definitions for queueWorker */
+osMessageQueueId_t queueWorkerHandle;
+const osMessageQueueAttr_t queueWorker_attributes = {
+  .name = "queueWorker"
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -131,6 +143,7 @@ void StartTaskDisplay(void *argument);
 void StartTaskGladsLeds(void *argument);
 void StartTaskGlassBtns(void *argument);
 void StartTaskManager(void *argument);
+void StartTaskWorker(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -179,6 +192,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of queueServo */
   queueServoHandle = osMessageQueueNew (1, sizeof(uint8_t), &queueServo_attributes);
 
+  /* creation of queueWorker */
+  queueWorkerHandle = osMessageQueueNew (1, sizeof(WorkerEvent), &queueWorker_attributes);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -207,6 +223,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of taskManager */
   taskManagerHandle = osThreadNew(StartTaskManager, NULL, &taskManager_attributes);
+
+  /* creation of taskWorker */
+  taskWorkerHandle = osThreadNew(StartTaskWorker, NULL, &taskWorker_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -357,6 +376,24 @@ void StartTaskManager(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartTaskManager */
+}
+
+/* USER CODE BEGIN Header_StartTaskWorker */
+/**
+ * @brief Function implementing the taskWorker thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTaskWorker */
+void StartTaskWorker(void *argument)
+{
+  /* USER CODE BEGIN StartTaskWorker */
+  TaskWorker(argument);
+  /* Infinite loop */
+  for (;;) {
+    osDelay(1);
+  }
+  /* USER CODE END StartTaskWorker */
 }
 
 /* Private application code --------------------------------------------------*/

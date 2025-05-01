@@ -36,7 +36,13 @@ void AppStateIdle::onEncoderEvent(const EncoderState &state) {
       osThreadFlagsSet(taskDisplayHandle, 0x01);
     } else {
       // это короткое нажатие, надо запустить задачу розлива
-      // TODO реализовать
+      // TODO заглушка
+      WorkerEvent event = {
+          .type = WorkerEventType::RUN,
+          .angle = 90,
+          .time = 5000,
+      };
+      app.updateWorker(&event);
     }
   }
 }

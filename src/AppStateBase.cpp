@@ -10,6 +10,7 @@ void AppStateBase::onEvent(const ManagerEvent &event) {
   case ManagerEventSource::PUMP:
     app.setPump(event.data.pump);
     break;
+  // TODO обработать событие добавления/удаления стопки
   default:
     break;
   }

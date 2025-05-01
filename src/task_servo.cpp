@@ -1,6 +1,6 @@
+#include "AppContext.h"
 #include "app_shared.h"
 #include "tim.h"
-#include <cmsis_os2.h>
 
 #define SERVO_MIN 500  // минимум (в микросекундах)
 #define SERVO_MAX 2400 // максимум
@@ -16,22 +16,11 @@ void setAngle(uint8_t angle) {
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4, pulse);
 }
 
-void sendServoStatus(uint8_t angle) {
-  ManagerEvent event = {
-      .source = SERVO,
-      .data =
-          {
-              .servo = angle,
-          },
-  };
-  osMessageQueuePut(queueManagerHandle, &event, 0, osWaitForever);
-}
-
 void TaskServo(void *argument) {
   uint8_t current = 0;
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
   setAngle(current);
-  sendServoStatus(current);
+  app.sendServoStatus(current);
 
   for (;;) {
     uint8_t cmd;
@@ -42,7 +31,7 @@ void TaskServo(void *argument) {
         setAngle(cmd);
         current = cmd;
       }
-      sendServoStatus(cmd);
+      app.sendServoStatus(cmd);
     }
   }
 }

@@ -23,6 +23,16 @@ public:
   /// @brief Включить/выключить помпу
   /// @param pump 0/1
   void updatePump(bool pump);
+  /// @brief Отправить событие воркеру
+  /// @param event
+  void updateWorker(WorkerEvent *event);
+
+  /// @brief Отправить статус помпы
+  void sendPumpStatus(uint8_t pump);
+  /// @brief Отправить статус серво
+  void sendServoStatus(uint8_t angle);
+  /// @brief Отправить об окончании задания
+  void sendWorkerDone();
 
   /// @brief Текущий угол поворота сервы
   uint8_t getServo() const;

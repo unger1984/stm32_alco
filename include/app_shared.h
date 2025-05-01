@@ -15,6 +15,7 @@ extern "C" {
 extern osMessageQueueId_t queueManagerHandle;
 extern osMessageQueueId_t queuePumpHandle;
 extern osMessageQueueId_t queueServoHandle;
+extern osMessageQueueId_t queueWorkerHandle;
 extern osThreadId_t taskDisplayHandle;
 
 void TaskEncoder(void *argument);
@@ -22,7 +23,9 @@ void TaskManager(void *argument);
 void TaskPump(void *argument);
 void TaskServo(void *argument);
 void TaskDisplay(void *argument);
+void TaskWorker(void *argument);
 
+/// @brief Тип события энкодера
 typedef enum EncoderEventType {
   NONE = 0, // нет событий
   ROTATE,   // вращение
@@ -31,6 +34,7 @@ typedef enum EncoderEventType {
   HOLD,     // Удержание кнопки
 } EncoderEventType;
 
+/// @brief Состояние энкодера
 typedef struct EncoderState {
   EncoderEventType type;
   int8_t steps;             // Вращение
@@ -38,6 +42,7 @@ typedef struct EncoderState {
   uint32_t pressDurationMs; // Время нажатия кнопки
 } EncoderState;
 
+/// @brief Источники событий для менеджера
 typedef enum ManagerEventSource {
   ENCODER = 0,
   PUMP,
@@ -46,6 +51,7 @@ typedef enum ManagerEventSource {
   WORKER,
 } ManagerEventSource;
 
+/// @brief Событие для менеджера
 typedef struct ManagerEvent {
   ManagerEventSource source;
   union {
@@ -55,6 +61,19 @@ typedef struct ManagerEvent {
     // AppStateType_t newState; // новыое состояниу
   } data;
 } ManagerEvent;
+
+/// @brief Тип событий для воркера
+typedef enum WorkerEventType {
+  RUN = 0,
+  STOP,
+} WorkerEventType;
+
+/// @brief Событие длдя воркера
+typedef struct WorkerEvent {
+  WorkerEventType type;
+  uint8_t angle; // угол на который повернутся
+  uint32_t time; // время которое надо лить
+} WorkerEvent;
 
 #ifdef __cplusplus
 }

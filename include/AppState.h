@@ -4,13 +4,15 @@
 
 #include "app_shared.h"
 
+/// @brief Тип текущего состяния
 enum class AppStateType {
   LOADING = 0,
   IDLE,
-  WORK,
+  WORKER,
   MENU,
 };
 
+/// @brief Базовый класс состояния
 class AppStateBase {
 public:
   /// @brief Тип текущего состяния для идентификации
@@ -28,6 +30,7 @@ public:
   virtual ~AppStateBase() = default;
 };
 
+/// @brief Состояние загрузки
 class AppStateLoading : public AppStateBase {
 public:
   AppStateType getType() const;
@@ -36,6 +39,7 @@ public:
   void onEvent(const ManagerEvent &event);
 };
 
+/// @brief Состояние ожидания команд
 class AppStateIdle : public AppStateBase {
 public:
   AppStateType getType() const;
@@ -47,6 +51,20 @@ private:
   void onEncoderEvent(const EncoderState &state);
 };
 
+/// @brief Состояние "В работе"
+class AppStateWorker : public AppStateBase {
+public:
+  AppStateType getType() const;
+  void onEnter();
+  void onExit();
+  void onEvent(const ManagerEvent &event);
+
+private:
+  void onEncoderEvent(const EncoderState &state);
+  void onWorkerDone();
+};
+
+/// @brief Состояние Меню
 class AppStateMenu : public AppStateBase {
 public:
   AppStateType getType() const;
@@ -61,5 +79,6 @@ private:
 extern AppStateLoading appStateLoading;
 extern AppStateIdle appStateIdle;
 extern AppStateMenu appStateMenu;
+extern AppStateWorker appStateWork;
 
 #endif /* _APP_STATE_H */

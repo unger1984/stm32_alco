@@ -19,7 +19,7 @@ void AppStateLoading::onEnter() {
 void AppStateLoading::onExit() {}
 
 void AppStateLoading::onEvent(const ManagerEvent &event) {
-  // Никак не реагируем на события
+  AppStateBase::onEvent(event);
 }
 
 AppStateLoading appStateLoading;

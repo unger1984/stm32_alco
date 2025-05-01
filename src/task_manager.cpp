@@ -1,24 +1,8 @@
 #include "AppContext.h"
-#include <cmsis_os2.h>
-#include <stdio.h>
 
 void TaskManager(void *argument) {
 
   app.switchState(&appStateLoading);
-
-  // currentState = {
-  //     .type = IDLE,
-  //     .servo = 0,
-  //     .pump = 0,
-  //     .hold = 0,
-  //     .menu =
-  //         {
-  //             .current = NULL,
-  //             .index = 0,
-  //             .isSelected = 0,
-  //         },
-  //     .currentSettings = &currentSettings,
-  // };
 
   for (;;) {
     ManagerEvent event;
