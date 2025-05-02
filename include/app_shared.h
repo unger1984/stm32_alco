@@ -6,7 +6,10 @@
 #include <cmsis_os.h>
 #include <stdint.h>
 
-#define LONG_PRESS_DURATION 500
+#define LONG_PRESS_DURATION 500 // задержка для долгого нажатия
+#define SERVO_MIN 500           // минимум (в микросекундах)
+#define SERVO_MAX 2400          // максимум
+#define WAIT_SERVO 1000         // время ожидания поворота сервы
 
 #ifdef __cplusplus
 extern "C" {

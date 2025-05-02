@@ -4,9 +4,6 @@
 #include "tim.h"
 #include "utils.h"
 
-#define SERVO_MIN 500  // минимум (в микросекундах)
-#define SERVO_MAX 2400 // максимум
-
 void setAngle(uint8_t angle) {
   angle = clamp<uint8_t>(angle, 0, 180);
 
@@ -43,6 +40,7 @@ void TaskHardware(void *argument) {
       case HardwareEventType::TO_SERVO:
         if (servoAngle != event.data.servo) {
           setAngle(event.data.servo);
+          osDelay(WAIT_SERVO); // серво поварачивается не мгновенно!
           servoAngle = event.data.servo;
         }
         app.sendServoStatus(event.data.servo);

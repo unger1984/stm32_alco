@@ -66,14 +66,20 @@ void AppStateWorker::onTick() {
   for (uint8_t index = 0; index < 6; index++) {
     GlassState state = app.getGlassess()->getGlass(index);
     switch (state.type) {
-    case GlassStateType::GLASS_DRAIN:
-      app.getGlassess()->setStatePoured(
-          index, map<uint32_t, uint8_t>(
-                     millis() - startDrain, 0,
-                     map<uint32_t>(app.getSettings()->data.doses[index], 0, 100,
-                                   0, app.getSettings()->data.calibration),
-                     0, app.getSettings()->data.doses[index]));
-      app.updateDisplay();
+    case GlassStateType::GLASS_DRAIN: {
+      int32_t time = millis() - startDrain - WAIT_SERVO;
+      if (time >= 0) {
+        app.getGlassess()->setStatePoured(
+            index,
+            map<uint32_t, uint8_t>(
+                time, 0,
+                map<uint32_t>(app.getSettings()->data.doses[index], 0, 100, 0,
+                              app.getSettings()->data.calibration),
+                0, app.getSettings()->data.doses[index]));
+        app.updateDisplay();
+      }
+    } break;
+    default:
       break;
     }
   }
