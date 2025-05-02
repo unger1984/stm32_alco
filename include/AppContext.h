@@ -50,9 +50,9 @@ public:
 
 private:
   AppStateBase *currentState = nullptr;
-  uint8_t servo;
-  bool pump;
-  uint32_t hold;
+  uint8_t servo = 0;
+  bool pump = 0;
+  uint32_t hold = 0;
   MenuManager *menu = &appManuManager;
   AppSettings *settings = &appSettings;
 };

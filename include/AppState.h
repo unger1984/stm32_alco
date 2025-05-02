@@ -33,19 +33,19 @@ public:
 /// @brief Состояние загрузки
 class AppStateLoading : public AppStateBase {
 public:
-  AppStateType getType() const;
-  void onEnter();
-  void onExit();
-  void onEvent(const ManagerEvent &event);
+  AppStateType getType() const override;
+  void onEnter() override;
+  void onExit() override;
+  void onEvent(const ManagerEvent &event) override;
 };
 
 /// @brief Состояние ожидания команд
 class AppStateIdle : public AppStateBase {
 public:
-  AppStateType getType() const;
-  void onEnter();
-  void onExit();
-  void onEvent(const ManagerEvent &event);
+  AppStateType getType() const override;
+  void onEnter() override;
+  void onExit() override;
+  void onEvent(const ManagerEvent &event) override;
 
 private:
   void onEncoderEvent(const EncoderState &state);
@@ -54,9 +54,9 @@ private:
 /// @brief Состояние "В работе"
 class AppStateWorker : public AppStateBase {
 public:
-  AppStateType getType() const;
-  void onEnter();
-  void onExit();
+  AppStateType getType() const override;
+  void onEnter() override;
+  void onExit() override;
   void onEvent(const ManagerEvent &event);
 
 private:
@@ -67,9 +67,9 @@ private:
 /// @brief Состояние Меню
 class AppStateMenu : public AppStateBase {
 public:
-  AppStateType getType() const;
-  void onEnter();
-  void onExit();
+  AppStateType getType() const override;
+  void onEnter() override;
+  void onExit() override;
   void onEvent(const ManagerEvent &event);
 
 private:
@@ -79,6 +79,6 @@ private:
 extern AppStateLoading appStateLoading;
 extern AppStateIdle appStateIdle;
 extern AppStateMenu appStateMenu;
-extern AppStateWorker appStateWork;
+extern AppStateWorker appStateWorker;
 
 #endif /* _APP_STATE_H */

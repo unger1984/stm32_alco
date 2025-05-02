@@ -31,7 +31,7 @@ void AppContext::updatePump(bool pump) {
 /// @brief Отправить событие воркеру
 /// @param event
 void AppContext::updateWorker(WorkerEvent *event) {
-  osMessageQueuePut(queueWorkerHandle, &event, 0, osWaitForever);
+  osMessageQueuePut(queueWorkerHandle, event, 0, osWaitForever);
 }
 
 /// @brief Отправить статус помпы

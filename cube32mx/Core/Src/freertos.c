@@ -79,20 +79,6 @@ const osThreadAttr_t taskServo_attributes = {
 osThreadId_t taskDisplayHandle;
 const osThreadAttr_t taskDisplay_attributes = {
   .name = "taskDisplay",
-  .stack_size = 158 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for taskGlassLeds */
-osThreadId_t taskGlassLedsHandle;
-const osThreadAttr_t taskGlassLeds_attributes = {
-  .name = "taskGlassLeds",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for taskGlassBtns */
-osThreadId_t taskGlassBtnsHandle;
-const osThreadAttr_t taskGlassBtns_attributes = {
-  .name = "taskGlassBtns",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -140,8 +126,6 @@ void StartTaskEncoder(void *argument);
 void StartTaskPump(void *argument);
 void StartTaskServo(void *argument);
 void StartTaskDisplay(void *argument);
-void StartTaskGladsLeds(void *argument);
-void StartTaskGlassBtns(void *argument);
 void StartTaskManager(void *argument);
 void StartTaskWorker(void *argument);
 
@@ -214,12 +198,6 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of taskDisplay */
   taskDisplayHandle = osThreadNew(StartTaskDisplay, NULL, &taskDisplay_attributes);
-
-  /* creation of taskGlassLeds */
-  taskGlassLedsHandle = osThreadNew(StartTaskGladsLeds, NULL, &taskGlassLeds_attributes);
-
-  /* creation of taskGlassBtns */
-  taskGlassBtnsHandle = osThreadNew(StartTaskGlassBtns, NULL, &taskGlassBtns_attributes);
 
   /* creation of taskManager */
   taskManagerHandle = osThreadNew(StartTaskManager, NULL, &taskManager_attributes);
@@ -324,40 +302,6 @@ void StartTaskDisplay(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartTaskDisplay */
-}
-
-/* USER CODE BEGIN Header_StartTaskGladsLeds */
-/**
- * @brief Function implementing the taskGlassLeds thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskGladsLeds */
-void StartTaskGladsLeds(void *argument)
-{
-  /* USER CODE BEGIN StartTaskGladsLeds */
-  /* Infinite loop */
-  for (;;) {
-    osDelay(1);
-  }
-  /* USER CODE END StartTaskGladsLeds */
-}
-
-/* USER CODE BEGIN Header_StartTaskGlassBtns */
-/**
- * @brief Function implementing the taskGlassBtns thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskGlassBtns */
-void StartTaskGlassBtns(void *argument)
-{
-  /* USER CODE BEGIN StartTaskGlassBtns */
-  /* Infinite loop */
-  for (;;) {
-    osDelay(1);
-  }
-  /* USER CODE END StartTaskGlassBtns */
 }
 
 /* USER CODE BEGIN Header_StartTaskManager */

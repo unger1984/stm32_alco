@@ -6,6 +6,13 @@ AppStateType AppStateWorker::getType() const { return AppStateType::WORKER; }
 void AppStateWorker::onEnter() {
   // Обновим экран
   app.updateDisplay();
+  // TODO заглушка
+  WorkerEvent event = {
+      .type = WorkerEventType::RUN,
+      .angle = 90,
+      .time = 5000,
+  };
+  app.updateWorker(&event);
 }
 
 void AppStateWorker::onExit() {}
@@ -39,4 +46,4 @@ void AppStateWorker::onWorkerDone() {
   app.switchState(&appStateIdle);
 }
 
-AppStateWorker appStateWork;
+AppStateWorker appStateWorker;

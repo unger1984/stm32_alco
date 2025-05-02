@@ -16,6 +16,7 @@ void drowIdle();
 void drowMenu(MenuManager *menu);
 void drowDrain();
 void drowCalibration();
+void drowWork();
 
 void TaskDisplay(void *argument) {
 
@@ -34,6 +35,9 @@ void TaskDisplay(void *argument) {
         break;
       case AppStateType::MENU:
         drowMenu(app.getMenu());
+        break;
+      case AppStateType::WORKER:
+        drowWork();
         break;
       default:
         break;
@@ -65,6 +69,15 @@ void drowIdle() {
   oled.setFont(u8g2_font_unifont_t_cyrillic);
   snprintf(txt, sizeof(txt), ver);
   oled.print(HALF_SCREEN - utf8_strlen(ver) * HALF_TEXT + 10, 50, txt);
+  oled.update();
+}
+
+void drowWork() {
+  oled.clearAll();
+  const char text[] = "Наливаю...";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  snprintf(txt, sizeof(txt), text);
+  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
   oled.update();
 }
 
