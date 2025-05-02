@@ -1,18 +1,24 @@
 #pragma once
 
-#include "Glass.h"
 #include "app_shared.h"
 
 class GlassManager {
 public:
   GlassManager()
       : glassess_{
-            Glass(0), Glass(1), Glass(2), Glass(3), Glass(4), Glass(5),
+            {.index = 0, .type = GlassStateType::GLASS_NONE},
+            {.index = 1, .type = GlassStateType::GLASS_NONE},
+            {.index = 2, .type = GlassStateType::GLASS_NONE},
+            {.index = 3, .type = GlassStateType::GLASS_NONE},
+            {.index = 4, .type = GlassStateType::GLASS_NONE},
+            {.index = 5, .type = GlassStateType::GLASS_NONE},
         } {};
 
-  void apply(AppSettings *settings);
-  Glass getGlass(uint8_t index) const;
+  void setStateType(uint8_t index, GlassStateType type);
+  GlassState getGlass(uint8_t index) const;
 
 private:
-  Glass glassess_[6];
+  GlassState glassess_[6];
 };
+
+extern GlassManager glassManager;

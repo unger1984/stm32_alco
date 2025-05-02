@@ -4,6 +4,7 @@
 #define _APP_CONTEXT_H
 
 #include "AppState.h"
+#include "GlassManager.h"
 #include "MenuItem.h"
 #include "MenuManager.h"
 #include "SettingsManager.h"
@@ -47,6 +48,7 @@ public:
 
   AppStateBase *getState() const;
   MenuManager *getMenu() const;
+  GlassManager *getGlassess() const;
 
 private:
   AppStateBase *currentState = nullptr;
@@ -55,6 +57,7 @@ private:
   uint32_t hold = 0;
   MenuManager *menu = &appManuManager;
   SettingsManager *settings = &appSettings;
+  GlassManager *glassManager;
 };
 
 extern AppContext app;

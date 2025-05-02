@@ -40,6 +40,20 @@ typedef struct EncoderState {
   uint32_t pressDurationMs; // Время нажатия кнопки
 } EncoderState;
 
+/// @brief Тип состояния стопки
+typedef enum GlassStateType {
+  GLASS_NONE = 0, // нет стопки
+  GLASS_EMPTY,    // пустая стопка
+  GLASS_DRAIN,    // стопка наливается
+  GLASS_FULL,     // стопка налита
+} GlassStateType;
+
+/// @brief Состояние одной стопки
+typedef struct GlassState {
+  uint8_t index;
+  GlassStateType type;
+} GlassState;
+
 /// @brief Источники событий для менеджера
 typedef enum ManagerEventSource {
   FROM_ENCODER = 0,
@@ -56,7 +70,7 @@ typedef struct ManagerEvent {
     EncoderState encoder; // от энеодера
     uint8_t pump;         // 1 включено, 0 выключено
     uint8_t servo;        // угол поворота сервы
-    // AppStateType_t newState; // новыое состояниу
+    GlassState glass;     // состояние стопки
   } data;
 } ManagerEvent;
 
@@ -77,7 +91,7 @@ typedef struct WorkerEvent {
 typedef enum HardwareEventType {
   TO_PUMP = 0,
   TO_SERVO,
-  TOLEDS,
+  TO_GLASS,
 } HardwareEventType;
 
 /// @brief Событие для исполнителя
@@ -86,7 +100,6 @@ typedef struct HardwareEvent {
   union {
     uint8_t pump;  // 1 включено, 0 выключено
     uint8_t servo; // угол поворота сервы
-    // AppStateType_t newState; // новыое состояниу
   } data;
 } HardwareEvent;
 
