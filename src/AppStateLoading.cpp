@@ -1,5 +1,6 @@
 #include "AppContext.h"
 #include "AppState.h"
+#include "debug.h"
 
 AppStateType AppStateLoading::getType() const { return AppStateType::LOADING; }
 
@@ -10,8 +11,10 @@ void AppStateLoading::onEnter() {
   app.updateServo(0);
   // Остановим насос
   app.updatePump(0);
-  // TODO загрузка настроек и данных
-  osDelay(1000 * 5);
+  // Загрузка настроек и данных
+  app.getSettings()->load();
+  handleDebug(app.getSettings()->data.isDebug);
+
   // Все загрузили, ждем командыы
   app.switchState(&appStateIdle);
 }

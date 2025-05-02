@@ -88,6 +88,14 @@ typedef struct HardwareEvent {
   } data;
 } HardwareEvent;
 
+typedef struct AppSettings {
+  uint32_t MagicNum;
+  uint32_t calibration; // = 0; // время налива стопки
+  uint8_t angles[6];    // = {15, 45, 75, 105, 135, 165};
+  uint8_t doses[6];     // = {100, 100, 100, 100, 100, 100};
+  uint8_t isDebug;      // = false;
+} AppSettings;
+
 #ifdef __cplusplus
 }
 #endif

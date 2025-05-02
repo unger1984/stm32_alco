@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AppSettings.h"
 #include "Glass.h"
+#include "app_shared.h"
 
 class GlassManager {
 public:

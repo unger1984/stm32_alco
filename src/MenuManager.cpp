@@ -30,7 +30,7 @@ void MenuManager::onClick() {
           app.updateServo(90);
         } else if (indexMenu->isEqual(MENU_CALIBRATION)) {
           // Это мы вошли в калибровку, значит надо повернуть серво
-          app.setHold(app.getSettings()->calibration);
+          app.setHold(app.getSettings()->data.calibration);
           app.updateServo(90);
         }
         app.updateDisplay();
@@ -44,8 +44,9 @@ void MenuManager::onClick() {
             app.updateServo(0);
           } else if (indexMenu->isEqual(MENU_DEBUG)) {
             // включим или выключи отладку
-            handleDebug(app.getSettings()->isDebug);
+            handleDebug(app.getSettings()->data.isDebug);
           }
+          app.getSettings()->saveIfChanged();
         } else {
           // выделим
           selected = true;
@@ -66,7 +67,8 @@ void MenuManager::onClick() {
       app.updateServo(0);
     } else if (current->isEqual(MENU_CALIBRATION)) {
       // Это мы выходим из калибровки, значит надо повернуть серво
-      app.getSettings()->calibration = app.getHold();
+      app.getSettings()->data.calibration = app.getHold();
+      app.getSettings()->saveIfChanged();
       app.setHold(0);
       app.updateServo(0);
     }

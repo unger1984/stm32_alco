@@ -96,6 +96,6 @@ AppStateBase *AppContext::getState() const { return currentState; }
 
 MenuManager *AppContext::getMenu() const { return menu; };
 
-AppSettings *AppContext::getSettings() { return settings; };
+SettingsManager *AppContext::getSettings() { return settings; };
 
 AppContext app;
