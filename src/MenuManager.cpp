@@ -51,7 +51,7 @@ void MenuManager::onClick() {
           // выделим
           selected = true;
           if (current->isEqual(MENU_SERVO)) {
-            app.updateServo(*(uint8_t *)indexMenu->getParam());
+            app.updateServo(*static_cast<uint8_t *>(indexMenu->getParam()));
           }
         }
         app.updateDisplay();
@@ -134,7 +134,7 @@ void MenuManager::onRotate(int steps, bool pressed) {
     // Это подменю
     if (selected) {
       MenuItem *itemMenu = current->getChildrent()[index];
-      uint8_t val = *(uint8_t *)itemMenu->getParam();
+      uint8_t val = *static_cast<uint8_t *>(itemMenu->getParam());
       int newval = val + steps * (pressed ? 10 : 1);
       if (current->isEqual(MENU_SERVO)) {
         newval = clamp(newval, 0, 180);
@@ -144,7 +144,8 @@ void MenuManager::onRotate(int steps, bool pressed) {
       } else if (itemMenu->isEqual(MENU_DEBUG)) {
         newval = clamp<int8_t>(newval, 0, 1);
       }
-      *(uint8_t *)current->getChildrent()[index]->getParam() = newval;
+      *static_cast<uint8_t *>(current->getChildrent()[index]->getParam()) =
+          newval;
       app.updateDisplay();
     } else {
       // выделения нет - перемещаемся между пунктами

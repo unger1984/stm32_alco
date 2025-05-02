@@ -2,15 +2,13 @@
 #include "app_shared.h"
 #include "gpio.h"
 #include "tim.h"
+#include "utils.h"
 
 #define SERVO_MIN 500  // минимум (в микросекундах)
 #define SERVO_MAX 2400 // максимум
 
 void setAngle(uint8_t angle) {
-  if (angle > 180)
-    angle = 180;
-  else if (angle < 0)
-    angle = 0;
+  angle = clamp<uint8_t>(angle, 0, 180);
 
   uint16_t pulse =
       SERVO_MIN + ((uint32_t)(SERVO_MAX - SERVO_MIN) * angle) / 180;

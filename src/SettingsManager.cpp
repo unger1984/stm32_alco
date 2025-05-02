@@ -7,7 +7,7 @@ static const uint8_t defaultAngles[6] = {15, 45, 75, 105, 135, 165};
 
 void SettingsManager::load() {
   // Указатель на структуру в памяти Flash
-  AppSettings *flashData = (AppSettings *)FLASH_SETTINGS_ADDR;
+  AppSettings *flashData = reinterpret_cast<AppSettings *>(FLASH_SETTINGS_ADDR);
 
   // Проверяем контрольное число
   if (flashData->MagicNum == SETTINGS_MAGIC_NUM) {
@@ -45,7 +45,7 @@ bool SettingsManager::save() {
   }
 
   // Записываем структуру по 4 байта
-  uint32_t *dt = (uint32_t *)&data;
+  uint32_t *dt = reinterpret_cast<uint32_t *>(&data);
   for (size_t i = 0; i < sizeof(AppSettings) / 4; i++) {
     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, FLASH_SETTINGS_ADDR + i * 4,
                           dt[i]) != HAL_OK) {
@@ -57,7 +57,7 @@ bool SettingsManager::save() {
   // Блокируем доступ к Flash (обязательно)
   HAL_FLASH_Lock();
 
-  AppSettings *check = (AppSettings *)FLASH_SETTINGS_ADDR;
+  AppSettings *check = reinterpret_cast<AppSettings *>(FLASH_SETTINGS_ADDR);
   if (check->MagicNum != SETTINGS_MAGIC_NUM) {
     // Запись не сработала
     return false;
@@ -67,7 +67,7 @@ bool SettingsManager::save() {
 };
 
 bool SettingsManager::saveIfChanged() {
-  AppSettings *flashData = (AppSettings *)FLASH_SETTINGS_ADDR;
+  AppSettings *flashData = reinterpret_cast<AppSettings *>(FLASH_SETTINGS_ADDR);
 
   // Сравниваем байт в байт с тем, что лежит в Flash
   if (memcmp(&data, flashData, sizeof(AppSettings)) == 0) {

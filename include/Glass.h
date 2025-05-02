@@ -11,7 +11,7 @@ enum class GlassState {
 
 class Glass {
 public:
-  Glass(uint8_t index) : index_(index), angle_(0), time_(0) {};
+  explicit Glass(uint8_t index) : index_(index), angle_(0), time_(0) {};
 
   uint8_t getIndex() const;
   GlassState getType() const;

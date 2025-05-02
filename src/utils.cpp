@@ -17,7 +17,7 @@ uint8_t isStringEqual(const char *a, const char *b) {
 
 uint32_t utf8_strlen(const char *str) {
   uint32_t len = 0;
-  const unsigned char *s = (const unsigned char *)str;
+  const unsigned char *s = reinterpret_cast<const unsigned char *>(str);
 
   while (*s) {
     if ((*s & 0x80) == 0x00) {

@@ -4,8 +4,8 @@
 
 class MenuManager {
 public:
-  MenuManager(MenuItem *current = &menuMain, uint8_t index = 0,
-              bool isSelected = false)
+  explicit MenuManager(MenuItem *current = &menuMain, uint8_t index = 0,
+                       bool isSelected = false)
       : current(current), index(index), selected(isSelected) {}
 
   MenuItem *getCurrent();

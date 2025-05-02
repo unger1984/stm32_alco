@@ -12,8 +12,8 @@ void debugPrint(void *argument) {
   UBaseType_t taskCount = uxTaskGetNumberOfTasks();
   TaskStatus_t *taskStatusArray;
 
-  taskStatusArray =
-      (TaskStatus_t *)pvPortMalloc(taskCount * sizeof(TaskStatus_t));
+  taskStatusArray = reinterpret_cast<TaskStatus_t *>(
+      pvPortMalloc(taskCount * sizeof(TaskStatus_t)));
   if (taskStatusArray == NULL) {
     printf("malloc failed\n");
     return;

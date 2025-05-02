@@ -57,7 +57,7 @@ public:
   AppStateType getType() const override;
   void onEnter() override;
   void onExit() override;
-  void onEvent(const ManagerEvent &event);
+  void onEvent(const ManagerEvent &event) override;
 
 private:
   void onEncoderEvent(const EncoderState &state);
@@ -70,7 +70,7 @@ public:
   AppStateType getType() const override;
   void onEnter() override;
   void onExit() override;
-  void onEvent(const ManagerEvent &event);
+  void onEvent(const ManagerEvent &event) override;
 
 private:
   void onEncoderEvent(const EncoderState &state);

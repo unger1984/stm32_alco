@@ -44,7 +44,7 @@ void AppContext::updatePump(bool pump) {
 
 /// @brief Отправить событие воркеру
 /// @param event
-void AppContext::updateWorker(WorkerEvent *event) {
+void AppContext::updateWorker(const WorkerEvent *event) {
   osMessageQueuePut(queueWorkerHandle, event, 0, osWaitForever);
 }
 

@@ -73,12 +73,14 @@ typedef struct WorkerEvent {
   uint32_t time; // время которое надо лить
 } WorkerEvent;
 
+/// @brief Тип события для исполнителя
 typedef enum HardwareEventType {
   TO_PUMP = 0,
   TO_SERVO,
   TOLEDS,
 } HardwareEventType;
 
+/// @brief Событие для исполнителя
 typedef struct HardwareEvent {
   HardwareEventType type;
   union {
@@ -88,6 +90,7 @@ typedef struct HardwareEvent {
   } data;
 } HardwareEvent;
 
+/// @brief Настройки приложения
 typedef struct AppSettings {
   uint32_t MagicNum;
   uint32_t calibration; // = 0; // время налива стопки

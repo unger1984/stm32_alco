@@ -25,7 +25,7 @@ public:
   void updatePump(bool pump);
   /// @brief Отправить событие воркеру
   /// @param event
-  void updateWorker(WorkerEvent *event);
+  void updateWorker(const WorkerEvent *event);
 
   /// @brief Отправить статус помпы
   void sendPumpStatus(uint8_t pump);
