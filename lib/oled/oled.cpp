@@ -73,6 +73,15 @@ void OLED::addToBuffer(int value) {
   }
 }
 
+uint8_t OLED::getUTF8Width(const char *val) {
+  return u8g2_GetUTF8Width(&u8g2, val);
+}
+
+void OLED::setFontPosBaseline() { u8g2_SetFontPosBaseline(&u8g2); };
+void OLED::setFontPosBottom() { u8g2_SetFontPosBottom(&u8g2); };
+void OLED::setFontPosTop() { u8g2_SetFontPosTop(&u8g2); };
+void OLED::setFontPosCenter() { u8g2_SetFontPosCenter(&u8g2); };
+
 // --- Static Callbacks ---
 
 uint8_t OLED::byte_cb(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,

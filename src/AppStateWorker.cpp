@@ -2,13 +2,12 @@
 #include "AppState.h"
 #include "utils.h"
 
+uint32_t startDrain = 0;
 void runGlass(uint8_t index);
 
 AppStateType AppStateWorker::getType() const { return AppStateType::WORKER; }
 
 void AppStateWorker::onEnter() {
-  // Обновим экран
-  app.updateDisplay();
   // TODO заглушка
   runGlass(5);
 }
@@ -45,6 +44,7 @@ void AppStateWorker::onWorkerDone() {
     case GlassStateType::GLASS_DRAIN:
       // В эту стопку закончили наливать
       app.getGlassess()->setStateType(index, GlassStateType::GLASS_FULL);
+      startDrain = 0;
       // TODO сменить цвет светодиода
       break;
     case GlassStateType::GLASS_EMPTY:
@@ -59,9 +59,25 @@ void AppStateWorker::onWorkerDone() {
   app.switchState(&appStateIdle);
 }
 
+void AppStateWorker::onTick() {
+  for (uint8_t index = 0; index < 6; index++) {
+    GlassState state = app.getGlassess()->getGlass(index);
+    switch (state.type) {
+    case GlassStateType::GLASS_DRAIN:
+      app.getGlassess()->setStatePoured(
+          index, map<uint32_t, uint8_t>(millis() - startDrain, 0,
+                                        app.getSettings()->data.calibration, 0,
+                                        app.getSettings()->data.doses[index]));
+      app.updateDisplay();
+      break;
+    }
+  }
+}
+
 void runGlass(uint8_t index) {
   index = clamp<uint8_t>(index, 0, 5);
   app.getGlassess()->setStateType(index, GlassStateType::GLASS_DRAIN);
+  app.getGlassess()->setStatePoured(index, 0);
   // TODO сменить цвет светодиода
   WorkerEvent event = {
       .type = WorkerEventType::RUN,
@@ -69,6 +85,9 @@ void runGlass(uint8_t index) {
       .time = map<uint32_t>(app.getSettings()->data.doses[index], 0, 100, 0,
                             app.getSettings()->data.calibration),
   };
+  startDrain = millis();
+  // Обновим экран
+  app.updateDisplay();
   app.updateWorker(&event);
 }
 

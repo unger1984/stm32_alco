@@ -49,35 +49,45 @@ void TaskDisplay(void *argument) {
 void drowLoading() {
   oled.clearAll();
   const char text[] = "НАЛИВАТОР";
+  oled.setFont(u8g2_font_10x20_t_cyrillic);
+  oled.print((WIDTH - oled.getUTF8Width(text)) / 2, 30, text);
+
   const char ver[] = "v1.0";
   oled.setFont(u8g2_font_10x20_t_cyrillic);
-  snprintf(txt, sizeof(txt), text);
-  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
-  snprintf(txt, sizeof(txt), ver);
-  oled.print(HALF_SCREEN - utf8_strlen(ver) * HALF_TEXT, 50, txt);
+  oled.print((WIDTH - oled.getUTF8Width(ver)) / 2, 50, ver);
+
   oled.update();
 }
 
 void drowIdle() {
-  oled.clearAll();
+  oled.clear();
   const char text[] = "Налить?";
-  const char ver[] = "нажмите кнопку";
   oled.setFont(u8g2_font_10x20_t_cyrillic);
-  snprintf(txt, sizeof(txt), text);
-  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+  oled.print((WIDTH - oled.getUTF8Width(text)) / 2, 30, text);
 
+  const char subtext[] = "нажмите кнопку";
   oled.setFont(u8g2_font_unifont_t_cyrillic);
-  snprintf(txt, sizeof(txt), ver);
-  oled.print(HALF_SCREEN - utf8_strlen(ver) * HALF_TEXT + 10, 50, txt);
+  oled.print((WIDTH - oled.getUTF8Width(subtext)) / 2, 50, subtext);
+
   oled.update();
 }
 
 void drowWork() {
-  oled.clearAll();
-  const char text[] = "Наливаю...";
+  GlassState glass{.index = 0, .poured = 0, .type = GlassStateType::GLASS_NONE};
+  for (uint8_t idx = 0; idx < 6; idx++) {
+    if (app.getGlassess()->getGlass(idx).type == GlassStateType::GLASS_DRAIN) {
+      glass = app.getGlassess()->getGlass(idx);
+    }
+  }
+
+  oled.clear();
+  snprintf(txt, sizeof(txt), "Стопка %d", glass.index + 1);
   oled.setFont(u8g2_font_10x20_t_cyrillic);
-  snprintf(txt, sizeof(txt), text);
-  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+  oled.print((WIDTH - oled.getUTF8Width(txt)) / 2, 20, txt);
+
+  snprintf(txt, sizeof(txt), "%d", glass.poured);
+  oled.setFont(u8g2_font_logisoso32_tr);
+  oled.print((WIDTH - oled.getUTF8Width(txt)) / 2, 60, txt);
   oled.update();
 }
 
@@ -130,7 +140,8 @@ void drowMenu(MenuManager *menu) {
         if (itemMenu->getType() == MenuItemType::EDIT) {
           snprintf(txt, sizeof(txt), "%d",
                    *static_cast<uint8_t *>(itemMenu->getParam()));
-          oled.print(WIDTH - 2 - utf8_strlen(txt) * 7, 12 + (i * 16), txt);
+          oled.print(WIDTH - 2 - oled.getUTF8Width(txt) * 7, 12 + (i * 16),
+                     txt);
         }
       }
       oled.update();
@@ -152,15 +163,15 @@ void drowDrain() {
   oled.clear();
   const char text[] = "ПРОКАЧКА";
   oled.setFont(u8g2_font_10x20_t_cyrillic);
-  snprintf(txt, sizeof(txt), text);
-  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+  oled.print((WIDTH - oled.getUTF8Width(text)) / 2, 20, text);
 
   float time = (float)app.getHold() / 1000;
   int t_int = (int)time;
   // int t_frac = (int)(time * 10) % 10;
   int t_frac = (int)(time * 100) % 100;
-  snprintf(txt, sizeof(txt), "%d.%02dс", t_int, t_frac);
-  oled.print(HALF_SCREEN - utf8_strlen(txt) * HALF_TEXT, 55, txt);
+  snprintf(txt, sizeof(txt), "%d.%02ds", t_int, t_frac);
+  oled.setFont(u8g2_font_logisoso32_tr);
+  oled.print((WIDTH - oled.getUTF8Width(txt)) / 2, 60, txt);
   oled.update();
 }
 
@@ -168,13 +179,13 @@ void drowCalibration() {
   oled.clear();
   const char text[] = "КАЛИБРОВКА";
   oled.setFont(u8g2_font_10x20_t_cyrillic);
-  snprintf(txt, sizeof(txt), text);
-  oled.print(HALF_SCREEN - utf8_strlen(text) * HALF_TEXT, 30, txt);
+  oled.print((WIDTH - oled.getUTF8Width(text)) / 2, 20, text);
 
   float time = (float)app.getHold() / 1000;
   int t_int = (int)time;
   int t_frac = (int)(time * 100) % 100;
-  snprintf(txt, sizeof(txt), "%d.%02dс", t_int, t_frac);
-  oled.print(HALF_SCREEN - utf8_strlen(txt) * HALF_TEXT, 55, txt);
+  snprintf(txt, sizeof(txt), "%d.%02ds", t_int, t_frac);
+  oled.setFont(u8g2_font_logisoso32_tr);
+  oled.print((WIDTH - oled.getUTF8Width(txt)) / 2, 60, txt);
   oled.update();
 }

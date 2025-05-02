@@ -15,3 +15,5 @@ void AppStateBase::onEvent(const ManagerEvent &event) {
     break;
   }
 };
+
+void AppStateBase::onTick() {}

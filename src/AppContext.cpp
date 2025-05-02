@@ -98,6 +98,6 @@ MenuManager *AppContext::getMenu() const { return menu; };
 
 SettingsManager *AppContext::getSettings() { return settings; };
 
-GlassManager *AppContext::getGlassess() const { return glassManager; };
+GlassManager *AppContext::getGlassess() const { return glassess; };
 
 AppContext app;

@@ -10,6 +10,7 @@ void TaskManager(void *argument) {
     if (status == osStatus_t::osOK) {
       app.handleEvent(event);
     }
+    app.getState()->onTick();
     osDelay(1);
   }
 }

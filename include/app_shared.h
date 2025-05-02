@@ -51,6 +51,7 @@ typedef enum GlassStateType {
 /// @brief Состояние одной стопки
 typedef struct GlassState {
   uint8_t index;
+  uint8_t poured;
   GlassStateType type;
 } GlassState;
 

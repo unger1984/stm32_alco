@@ -27,6 +27,8 @@ public:
   /// @brief Выполняется при событии
   virtual void onEvent(const ManagerEvent &event);
 
+  virtual void onTick();
+
   virtual ~AppStateBase() = default;
 };
 
@@ -58,6 +60,7 @@ public:
   void onEnter() override;
   void onExit() override;
   void onEvent(const ManagerEvent &event) override;
+  void onTick() override;
 
 private:
   void onEncoderEvent(const EncoderState &state);

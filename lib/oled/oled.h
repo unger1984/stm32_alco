@@ -36,6 +36,11 @@ public:
   void box(u8g2_uint_t x, u8g2_uint_t y, u8g2_uint_t w, u8g2_uint_t h);
 
   void drowGraph(float temp);
+  uint8_t getUTF8Width(const char *val);
+  void setFontPosBaseline();
+  void setFontPosBottom();
+  void setFontPosTop();
+  void setFontPosCenter();
 
 private:
   static uint8_t byte_cb(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int,

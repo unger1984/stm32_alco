@@ -57,7 +57,7 @@ private:
   uint32_t hold = 0;
   MenuManager *menu = &appManuManager;
   SettingsManager *settings = &appSettings;
-  GlassManager *glassManager;
+  GlassManager *glassess = &glassManager;
 };
 
 extern AppContext app;

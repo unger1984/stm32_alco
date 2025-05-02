@@ -12,8 +12,6 @@ int compareStrings(const char *a, const char *b);
 
 uint8_t isStringEqual(const char *a, const char *b);
 
-uint32_t utf8_strlen(const char *str);
-
 /// @brief Ограничивает число val минимальным и максимальным значением
 /// @tparam T
 /// @param val
@@ -43,4 +41,10 @@ template <typename T> constexpr const T &max(const T &a, const T &b) {
 /// @return
 template <typename T> T map(T val, T in_min, T in_max, T out_min, T out_max) {
   return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+template <typename T, typename R>
+R map(T val, T in_min, T in_max, R out_min, R out_max) {
+  return static_cast<R>(
+      (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 }
