@@ -140,8 +140,7 @@ void drowMenu(MenuManager *menu) {
         if (itemMenu->getType() == MenuItemType::EDIT) {
           snprintf(txt, sizeof(txt), "%d",
                    *static_cast<uint8_t *>(itemMenu->getParam()));
-          oled.print(WIDTH - 2 - oled.getUTF8Width(txt) * 7, 12 + (i * 16),
-                     txt);
+          oled.print(WIDTH - 2 - oled.getUTF8Width(txt), 12 + (i * 16), txt);
         }
       }
       oled.update();

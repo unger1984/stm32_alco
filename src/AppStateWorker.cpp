@@ -44,6 +44,9 @@ void AppStateWorker::onWorkerDone() {
     case GlassStateType::GLASS_DRAIN:
       // В эту стопку закончили наливать
       app.getGlassess()->setStateType(index, GlassStateType::GLASS_FULL);
+      app.getGlassess()->setStatePoured(index,
+                                        app.getSettings()->data.doses[index]);
+      app.updateDisplay();
       startDrain = 0;
       // TODO сменить цвет светодиода
       break;
@@ -65,9 +68,11 @@ void AppStateWorker::onTick() {
     switch (state.type) {
     case GlassStateType::GLASS_DRAIN:
       app.getGlassess()->setStatePoured(
-          index, map<uint32_t, uint8_t>(millis() - startDrain, 0,
-                                        app.getSettings()->data.calibration, 0,
-                                        app.getSettings()->data.doses[index]));
+          index, map<uint32_t, uint8_t>(
+                     millis() - startDrain, 0,
+                     map<uint32_t>(app.getSettings()->data.doses[index], 0, 100,
+                                   0, app.getSettings()->data.calibration),
+                     0, app.getSettings()->data.doses[index]));
       app.updateDisplay();
       break;
     }
