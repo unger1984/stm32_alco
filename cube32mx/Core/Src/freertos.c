@@ -61,20 +61,6 @@ const osThreadAttr_t taskEncoder_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for taskPump */
-osThreadId_t taskPumpHandle;
-const osThreadAttr_t taskPump_attributes = {
-  .name = "taskPump",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for taskServo */
-osThreadId_t taskServoHandle;
-const osThreadAttr_t taskServo_attributes = {
-  .name = "taskServo",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
 /* Definitions for taskDisplay */
 osThreadId_t taskDisplayHandle;
 const osThreadAttr_t taskDisplay_attributes = {
@@ -96,25 +82,27 @@ const osThreadAttr_t taskWorker_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for taskHardware */
+osThreadId_t taskHardwareHandle;
+const osThreadAttr_t taskHardware_attributes = {
+  .name = "taskHardware",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for queueManager */
 osMessageQueueId_t queueManagerHandle;
 const osMessageQueueAttr_t queueManager_attributes = {
   .name = "queueManager"
 };
-/* Definitions for queuePump */
-osMessageQueueId_t queuePumpHandle;
-const osMessageQueueAttr_t queuePump_attributes = {
-  .name = "queuePump"
-};
-/* Definitions for queueServo */
-osMessageQueueId_t queueServoHandle;
-const osMessageQueueAttr_t queueServo_attributes = {
-  .name = "queueServo"
-};
 /* Definitions for queueWorker */
 osMessageQueueId_t queueWorkerHandle;
 const osMessageQueueAttr_t queueWorker_attributes = {
   .name = "queueWorker"
+};
+/* Definitions for queueHardware */
+osMessageQueueId_t queueHardwareHandle;
+const osMessageQueueAttr_t queueHardware_attributes = {
+  .name = "queueHardware"
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,11 +111,10 @@ const osMessageQueueAttr_t queueWorker_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartTaskEncoder(void *argument);
-void StartTaskPump(void *argument);
-void StartTaskServo(void *argument);
 void StartTaskDisplay(void *argument);
 void StartTaskManager(void *argument);
 void StartTaskWorker(void *argument);
+void StartTaskHardware(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -170,14 +157,11 @@ void MX_FREERTOS_Init(void) {
   /* creation of queueManager */
   queueManagerHandle = osMessageQueueNew (7, sizeof(ManagerEvent), &queueManager_attributes);
 
-  /* creation of queuePump */
-  queuePumpHandle = osMessageQueueNew (1, sizeof(uint8_t), &queuePump_attributes);
-
-  /* creation of queueServo */
-  queueServoHandle = osMessageQueueNew (1, sizeof(uint8_t), &queueServo_attributes);
-
   /* creation of queueWorker */
   queueWorkerHandle = osMessageQueueNew (1, sizeof(WorkerEvent), &queueWorker_attributes);
+
+  /* creation of queueHardware */
+  queueHardwareHandle = osMessageQueueNew (1, sizeof(HardwareEvent), &queueHardware_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -190,12 +174,6 @@ void MX_FREERTOS_Init(void) {
   /* creation of taskEncoder */
   taskEncoderHandle = osThreadNew(StartTaskEncoder, NULL, &taskEncoder_attributes);
 
-  /* creation of taskPump */
-  taskPumpHandle = osThreadNew(StartTaskPump, NULL, &taskPump_attributes);
-
-  /* creation of taskServo */
-  taskServoHandle = osThreadNew(StartTaskServo, NULL, &taskServo_attributes);
-
   /* creation of taskDisplay */
   taskDisplayHandle = osThreadNew(StartTaskDisplay, NULL, &taskDisplay_attributes);
 
@@ -204,6 +182,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of taskWorker */
   taskWorkerHandle = osThreadNew(StartTaskWorker, NULL, &taskWorker_attributes);
+
+  /* creation of taskHardware */
+  taskHardwareHandle = osThreadNew(StartTaskHardware, NULL, &taskHardware_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -248,42 +229,6 @@ void StartTaskEncoder(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartTaskEncoder */
-}
-
-/* USER CODE BEGIN Header_StartTaskPump */
-/**
- * @brief Function implementing the taskPump thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskPump */
-void StartTaskPump(void *argument)
-{
-  /* USER CODE BEGIN StartTaskPump */
-  TaskPump(argument);
-  /* Infinite loop */
-  for (;;) {
-    osDelay(1);
-  }
-  /* USER CODE END StartTaskPump */
-}
-
-/* USER CODE BEGIN Header_StartTaskServo */
-/**
- * @brief Function implementing the taskServo thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartTaskServo */
-void StartTaskServo(void *argument)
-{
-  /* USER CODE BEGIN StartTaskServo */
-  TaskServo(argument);
-  /* Infinite loop */
-  for (;;) {
-    osDelay(1);
-  }
-  /* USER CODE END StartTaskServo */
 }
 
 /* USER CODE BEGIN Header_StartTaskDisplay */
@@ -338,6 +283,24 @@ void StartTaskWorker(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartTaskWorker */
+}
+
+/* USER CODE BEGIN Header_StartTaskHardware */
+/**
+* @brief Function implementing the taskHardware thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTaskHardware */
+void StartTaskHardware(void *argument)
+{
+  /* USER CODE BEGIN StartTaskHardware */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartTaskHardware */
 }
 
 /* Private application code --------------------------------------------------*/

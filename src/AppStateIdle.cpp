@@ -16,7 +16,7 @@ void AppStateIdle::onExit() {}
 
 void AppStateIdle::onEvent(const ManagerEvent &event) {
   switch (event.source) {
-  case ManagerEventSource::ENCODER:
+  case ManagerEventSource::FROM_ENCODER:
     this->onEncoderEvent(event.data.encoder);
     break;
   default:

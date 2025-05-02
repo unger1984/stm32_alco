@@ -19,13 +19,27 @@ void AppContext::updateDisplay() { osThreadFlagsSet(taskDisplayHandle, 0x01); }
 /// @brief Повернуть серво
 /// @param angle угол поворота
 void AppContext::updateServo(uint8_t angle) {
-  osMessageQueuePut(queueServoHandle, &angle, 0, osWaitForever);
+  HardwareEvent event = {
+      .type = HardwareEventType::TO_SERVO,
+      .data =
+          {
+              .servo = angle,
+          },
+  };
+  osMessageQueuePut(queueHardwareHandle, &event, 0, osWaitForever);
 }
 
 /// @brief Включить/выключить помпу
 /// @param pump 0/1
 void AppContext::updatePump(bool pump) {
-  osMessageQueuePut(queuePumpHandle, &pump, 0, osWaitForever);
+  HardwareEvent event = {
+      .type = HardwareEventType::TO_PUMP,
+      .data =
+          {
+              .pump = pump,
+          },
+  };
+  osMessageQueuePut(queueHardwareHandle, &event, 0, osWaitForever);
 }
 
 /// @brief Отправить событие воркеру
@@ -37,7 +51,7 @@ void AppContext::updateWorker(WorkerEvent *event) {
 /// @brief Отправить статус помпы
 void AppContext::sendPumpStatus(uint8_t pump) {
   ManagerEvent event = {
-      .source = PUMP,
+      .source = ManagerEventSource::FROM_PUMP,
       .data =
           {
               .pump = pump,
@@ -49,7 +63,7 @@ void AppContext::sendPumpStatus(uint8_t pump) {
 /// @brief Отправить статус серво
 void AppContext::sendServoStatus(uint8_t angle) {
   ManagerEvent event = {
-      .source = SERVO,
+      .source = ManagerEventSource::FROM_SERVO,
       .data =
           {
               .servo = angle,
@@ -61,7 +75,7 @@ void AppContext::sendServoStatus(uint8_t angle) {
 /// @brief Отправить об окончании задания
 void AppContext::sendWorkerDone() {
   ManagerEvent event = {
-      .source = WORKER,
+      .source = FROM_WORKER,
   };
   osMessageQueuePut(queueManagerHandle, &event, 0, osWaitForever);
 }

@@ -19,10 +19,10 @@ void AppStateWorker::onExit() {}
 
 void AppStateWorker::onEvent(const ManagerEvent &event) {
   switch (event.source) {
-  case ManagerEventSource::ENCODER:
+  case ManagerEventSource::FROM_ENCODER:
     this->onEncoderEvent(event.data.encoder);
     break;
-  case ManagerEventSource::WORKER:
+  case ManagerEventSource::FROM_WORKER:
     this->onWorkerDone();
     break;
   default:

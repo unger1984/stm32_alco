@@ -13,7 +13,7 @@ void AppStateMenu::onEnter() {
 void AppStateMenu::onExit() {}
 
 void AppStateMenu::onEvent(const ManagerEvent &event) {
-  if (event.source == ManagerEventSource::ENCODER) {
+  if (event.source == ManagerEventSource::FROM_ENCODER) {
     this->onEncoderEvent(event.data.encoder);
   }
   AppStateBase::onEvent(event);

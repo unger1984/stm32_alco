@@ -52,12 +52,8 @@ void TaskEncoder(void *argument) {
     }
 
     if (state.type != EncoderEventType::NONE) {
-      //   printf("Event: %d Steps: %d Pressed %d Durations: %ul\r\n",
-      //   state.type,
-      //          state.steps, state.press, state.pressDurationMs);
-
       ManagerEvent event;
-      event.source = ManagerEventSource::ENCODER;
+      event.source = ManagerEventSource::FROM_ENCODER;
       event.data.encoder = state;
       osMessageQueuePut(queueManagerHandle, &event, 0, osWaitForever);
     }

@@ -1,6 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
-CAD.formats=
-CAD.pinconfig=
+CAD.formats=[]
+CAD.pinconfig=Dual
 CAD.provider=
 Dma.Request0=TIM2_CH2/CH4
 Dma.RequestsNb=1
@@ -16,8 +16,8 @@ Dma.TIM2_CH2/CH4.0.Priority=DMA_PRIORITY_HIGH
 Dma.TIM2_CH2/CH4.0.RequestParameters=Instance,Direction,PeriphInc,MemInc,PeriphDataAlignment,MemDataAlignment,Mode,Priority,FIFOMode
 FREERTOS.FootprintOK=true
 FREERTOS.IPParameters=Tasks01,configUSE_NEWLIB_REENTRANT,FootprintOK,Queues01,configUSE_STATS_FORMATTING_FUNCTIONS,configGENERATE_RUN_TIME_STATS
-FREERTOS.Queues01=queueManager,7,ManagerEvent,0,Dynamic,NULL,NULL;queuePump,1,uint8_t,0,Dynamic,NULL,NULL;queueServo,1,uint8_t,0,Dynamic,NULL,NULL;queueWorker,1,WorkerEvent,0,Dynamic,NULL,NULL
-FREERTOS.Tasks01=defaultTask,8,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL;taskEncoder,24,128,StartTaskEncoder,Default,NULL,Dynamic,NULL,NULL;taskPump,24,128,StartTaskPump,Default,NULL,Dynamic,NULL,NULL;taskServo,24,128,StartTaskServo,Default,NULL,Dynamic,NULL,NULL;taskDisplay,24,128,StartTaskDisplay,Default,NULL,Dynamic,NULL,NULL;taskManager,24,128,StartTaskManager,Default,NULL,Dynamic,NULL,NULL;taskWorker,24,128,StartTaskWorker,Default,NULL,Dynamic,NULL,NULL
+FREERTOS.Queues01=queueManager,7,ManagerEvent,0,Dynamic,NULL,NULL;queueWorker,1,WorkerEvent,0,Dynamic,NULL,NULL;queueHardware,1,HardwareEvent,0,Dynamic,NULL,NULL
+FREERTOS.Tasks01=defaultTask,8,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL;taskEncoder,24,128,StartTaskEncoder,Default,NULL,Dynamic,NULL,NULL;taskDisplay,24,128,StartTaskDisplay,Default,NULL,Dynamic,NULL,NULL;taskManager,24,128,StartTaskManager,Default,NULL,Dynamic,NULL,NULL;taskWorker,24,128,StartTaskWorker,Default,NULL,Dynamic,NULL,NULL;taskHardware,24,128,StartTaskHardware,Default,NULL,Dynamic,NULL,NULL
 FREERTOS.configGENERATE_RUN_TIME_STATS=1
 FREERTOS.configUSE_NEWLIB_REENTRANT=1
 FREERTOS.configUSE_STATS_FORMATTING_FUNCTIONS=1
